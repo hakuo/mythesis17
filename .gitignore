@@ -1,3 +1,10 @@
+# Image
+*.png
+*.jpg
+
+# Qt build folder
+*build-*
+
 # Prerequisites
 *.d
 
