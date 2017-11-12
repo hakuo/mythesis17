@@ -1,4 +1,5 @@
 #include "image_processing_util.h"
+
 /*
  * @brief: load image from file
  * @param: image => output matrix
@@ -21,8 +22,9 @@ void showImage(Mat image, const char* title) {
     imshow(title, image);                   // Show image
     waitKey();                              // Wait for a keystroke in the window
 }
+
 /*
- * @brief: convert Image from Gray to Binary
+ * @brief: convert image from GRAY to BINARY
  *`@param: image => input/output image
  * @param: mode
  * @return: -1 => fail
@@ -56,5 +58,43 @@ int cvtImgToBin(Mat& image, int mode) {
     }
     return ret;
 }
+
+/*
+ * @brief: extract words from binary image
+ * @param: input <= binary image
+ * @param: output => array
+ * @return: -1 => fail
+ * @return: 0 => error
+ */
+
+int extractWord(Mat& image) {
+    int ret;
+
+    return ret;
+}
+
+/*
+ * @brief:
+ * @param:
+ * @return:
+ */
+int extractCharacter(Mat& image) {
+    int ret;
+
+    return ret;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
