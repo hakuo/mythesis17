@@ -1,3 +1,7 @@
+*.cproject
+*.project
+*Debug/
+*Release/
 # Image
 *.png
 *.jpg
