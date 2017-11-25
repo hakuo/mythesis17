@@ -1,18 +1,18 @@
 /*
- * OCRTool.cpp
+ * TTSTool.cpp
  *
  *  Created on: Nov 24, 2017
  *      Author: cuongdh8
  */
 
-#include "OCRTool.h"
+#include "TTSTool.h"
 
-OCRTool::OCRTool() {
+TTSTool::TTSTool() {
     // TODO Auto-generated constructor stub
 
 }
 
-OCRTool::~OCRTool() {
+TTSTool::~TTSTool() {
     // TODO Auto-generated destructor stub
 }
 

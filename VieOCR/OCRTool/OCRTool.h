@@ -1,15 +1,16 @@
 /*
  * OCRTool.h
  *
- *  Created on: Nov 23, 2017
+ *  Created on: Nov 24, 2017
  *      Author: cuongdh8
  */
 
 #ifndef OCRTOOL_H_
 #define OCRTOOL_H_
 
-#include "../common.h"
 #include <opencv2/opencv.hpp>
+#include "../common.h"
+#include "../utils/file.h"
 
 
 class OCRTool {
@@ -17,7 +18,6 @@ public:
     OCRTool();
     virtual ~OCRTool();
 
-    void run(std::string& imgPath, std::string& txtPath);
 private:
 
 };
