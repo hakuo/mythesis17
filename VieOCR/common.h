@@ -13,6 +13,13 @@
 #include <errno.h>
 #include <pthread.h>
 #include <string>
+#include <vector>
 
+using namespace std;
+
+#define FAIL -1
+#define SUCCESS 0
+
+#define OCR_INTERNAL_SOCK "./tmp/ocr.sock"
 
 #endif /* COMMON_H_ */
