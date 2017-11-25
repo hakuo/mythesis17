@@ -11,6 +11,7 @@
 #include "../common.h"
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <netdb.h>
 #include <netinet/in.h>
 #include <unistd.h>
 
@@ -20,8 +21,9 @@ namespace IPC_Socket {
 }
 
 namespace TCP_Socket {
-    int initServer(int& sock);
-    int initClient(int& sock);
+    int initServer(int& sock, int portno, int numOfClient);
+    int initClient(int& sock, const char* ip_addr, int portno);
+    int acceptClient(int& sockServer, int& sockClient);
 }
 
 int readSocket(int sock, char* buffer, size_t size);
