@@ -11,6 +11,7 @@
 #include "../DLTool/DLTool.h"
 #include "../OCRTool/OCRTool.h"
 #include "../TTSTool/TTSTool.h"
+#include "../utils/socket.h"
 
 class OCRMgr {
 public:

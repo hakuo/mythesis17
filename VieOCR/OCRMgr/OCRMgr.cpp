@@ -55,7 +55,7 @@ void OCRMgr::stop() {
 /*
  * @function: OCRMgrThread
  * @brief: create pointer to OCRMgrThread
- * @parameter: void*
+ * @parameter: void* => pointer to an OCRMgr object
  * @return: NULL
  */
 void* OCRMgr::OCRMgrThread(void* arg) {
@@ -74,8 +74,15 @@ bool OCRMgr::readyToRun() {
     return (pDLTool && pOCRTool && pTTSTool);
 }
 
+/*
+ * @function: startOCRMgrServer
+ * @brief: OCRServer for receiving msg from pDLTool, pOCRTool, pTTSTool
+ * @parameter: void
+ * @return: void
+ */
 void OCRMgr::startOCRMgrServer() {
-
+    // TODO initOCRServerSocket
+    // TODO while(1)
 }
 
 

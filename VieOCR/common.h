@@ -22,4 +22,10 @@ using namespace std;
 
 #define OCR_INTERNAL_SOCK "./tmp/ocr.sock"
 
+enum {
+    DLTOOL_SOCK = 0,
+    OCRTOOL_SOCK = 1,
+    TTSTOOL_SOCK = 2
+};
+
 #endif /* COMMON_H_ */
