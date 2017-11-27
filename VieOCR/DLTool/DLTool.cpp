@@ -14,5 +14,14 @@ DLTool::DLTool() {
 
 DLTool::~DLTool() {
     // TODO Auto-generated destructor stub
+    stop();
 }
 
+bool DLTool::readyToRun() {
+    return true;
+}
+
+
+void DLTool::threadLoop() {
+
+}

@@ -6,6 +6,10 @@
  */
 #include "socket.h"
 
+
+
+namespace IPC_Socket {
+
 /*
  * @function: initServer
  * @brief: initialize an IPC Socket server and accept connection from clients
@@ -16,7 +20,7 @@
  * @return: SUCCESS/FAIL
  * @Note: The order of connection from clients
  */
-int IPC_Socket::initServer(int& sock, int client_sock[], const char* sockpath, int numOfClient) {
+int initServer(int& sock, int client_sock[], const char* sockpath, int numOfClient) {
     int ret;
     struct sockaddr_un sock_addr, client_addr;
     int socklen = sizeof(struct sockaddr_un);
@@ -68,7 +72,7 @@ int IPC_Socket::initServer(int& sock, int client_sock[], const char* sockpath, i
  * @parameter2: sockpath => path to socket file on hard disk
  * @return: SUCCESS/FAIL
  */
-int IPC_Socket::initClient(int& sock, const char* sockpath) {
+int initClient(int& sock, const char* sockpath) {
     int ret;
     struct sockaddr_un client_addr;
     sock = socket(AF_UNIX, SOCK_STREAM, 0);
@@ -96,8 +100,19 @@ int IPC_Socket::initClient(int& sock, const char* sockpath) {
     }
     return ret;
 }
+}  // namespace IPC_Socket
 
-int TCP_Socket::initServer(int& sock, int portno, int numOfClient) {
+namespace TCP_Socket {
+
+/*
+ * @function: initServer
+ * @brief: initialize an TCP Socket server
+ * @parameter1: sock => server socket
+ * @parameter2: portno => port which server is listening
+ * @parameter3: numOfClient => maximum client
+ * @return: SUCCESS/FAIL
+ */
+int initServer(int& sock, int portno, int numOfClient) {
     int ret;
     struct sockaddr_in sock_addr;
     sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -128,7 +143,15 @@ int TCP_Socket::initServer(int& sock, int portno, int numOfClient) {
     return ret;
 }
 
-int TCP_Socket::initClient(int& sock, const char* ip_addr, int portno) {
+/*
+ * @function: initClient
+ * @brief: initialize an IPC Socket client and connect to an TCP server
+ * @parameter1: sock => client socket
+ * @parameter2: ip_addr => IP Address to server
+ * @parameter3: portno => port which server is listening
+ * @return: SUCCESS/FAIL
+ */
+int initClient(int& sock, const char* ip_addr, int portno) {
     int ret;
     struct hostent *server;
     struct sockaddr_in serv_addr;
@@ -161,12 +184,14 @@ int TCP_Socket::initClient(int& sock, const char* ip_addr, int portno) {
     return ret;
 }
 
-int TCP_Socket::acceptClient(int& sockServer, int& sockClient) {
+int acceptClient(int& sockServer, int& sockClient) {
     struct sockaddr_in client_addr;
     int socklen = sizeof(struct sockaddr_in);
     sockClient = accept(sockServer, (struct sockaddr*) &client_addr, (socklen_t *) &socklen);
     return ((sockClient == FAIL)? FAIL: SUCCESS);
 }
+}  // namespace TCP_Socket
+
 
 int readSocket(int sock, char* buffer, size_t size) {
     int ret;

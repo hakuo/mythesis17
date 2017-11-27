@@ -7,55 +7,43 @@
 
 #include "OCRTool.h"
 
-OCRTool* OCRTool::m_me = NULL;
-
 OCRTool::OCRTool() {
-    mOCRToolThread = 0;
+
 }
 
 OCRTool::~OCRTool() {
-
+    stop();
 }
 
-void OCRTool::run(const char* filepath) {
-    if(readyToRun(filepath)) {
-        if(pthread_create(&mOCRToolThread, NULL, OCRTool::OCRToolThread, this) < 0) {
-            perror("OCRTool cannot create thread");
+bool OCRTool::readyToRun() {
+    return true;
+}
+
+void OCRTool::threadLoop() {
+    message_t msg;
+    while(1) {
+        if(popRxQueue(msg) && loadImage(mImage, msg.data)) {
+            // TODO cvtToBin
+            // TODO extractWord
+            // TODO extractChar
+            // TODO recognition
+            // TODO post processing
+            // TODO write to txt file
+            // TODO send Msg to OCRMgr
+            pushTxQueue(msg);
         }
     }
 }
 
-void* OCRTool::OCRToolThread(void* arg) {
-    m_me = reinterpret_cast<OCRTool*> (arg);
-    m_me->startOCRTool();
-    return NULL;
-}
-
-void OCRTool::startOCRTool() {
-    // TODO cvtToBin
-    // TODO extractWord
-    // TODO extractChar
-    // TODO recognition
-    // TODO post processing
-    // TODO write to txt file
-    // TODO send Msg to OCRMgr
-
-
-}
-
-bool OCRTool::readyToRun(const char* filepath) {
-    return (loadImage(mImage, filepath) == SUCCESS);
-}
-
-int OCRTool::loadImage(cv::Mat& image, const char* filepath) {
-    int ret;
+bool OCRTool::loadImage(cv::Mat& image, const char* filepath) {
+    bool ret;
     image = cv::imread(filepath, CV_LOAD_IMAGE_GRAYSCALE);
     if(image.data != NULL) {
-        ret = SUCCESS;
+        ret = true;
     }
     else {
         perror("OCRTool cannot read image");
-        ret = FAIL;
+        ret = false;
     }
     return ret;
 }

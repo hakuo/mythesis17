@@ -14,5 +14,13 @@ TTSTool::TTSTool() {
 
 TTSTool::~TTSTool() {
     // TODO Auto-generated destructor stub
+    stop();
 }
 
+bool TTSTool::readyToRun() {
+    return true;
+}
+
+void TTSTool::threadLoop() {
+
+}

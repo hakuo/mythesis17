@@ -7,17 +7,17 @@
 
 #include "OCRMgr.h"
 
-OCRMgr* OCRMgr::m_me = NULL;
-
 OCRMgr::OCRMgr() {
     pDLTool = new DLTool();
     pOCRTool = new OCRTool();
     pTTSTool = new TTSTool();
-
-    mOCRMgrThead = 0;
 }
 
 OCRMgr::~OCRMgr() {
+    /* Stop all thread */
+    stop();
+
+    /* delete all pointers */
     if(pDLTool) {
         delete pDLTool;
         pDLTool = NULL;
@@ -35,62 +35,33 @@ OCRMgr::~OCRMgr() {
 }
 
 /*
- * @function: run
- * @brief: run OCR Manager application
- * @parameter: void
- * @return: void
- */
-void OCRMgr::run() {
-    if(readyToRun()) {
-        if(pthread_create(&mOCRMgrThead, NULL, OCRMgr::OCRMgrThread, this) < 0) {
-            perror("OCRTool cannot create thread");
-        }
-    }
-}
-
-void OCRMgr::stop() {
-
-}
-
-/*
- * @function: OCRMgrThread
- * @brief: create pointer to OCRMgrThread
- * @parameter: void* => pointer to an OCRMgr object
- * @return: NULL
- */
-void* OCRMgr::OCRMgrThread(void* arg) {
-    m_me = reinterpret_cast<OCRMgr*> (arg);
-    m_me->startOCRMgrServer();
-    return NULL;
-}
-
-/*
  * @function: readyToRun
  * @brief: Check pDLTool, pOCRTool, pTTSTool has been initialized or not
  * @parameter: void
  * @return: READY/NOT READY    TRUE/FALSE
  */
 bool OCRMgr::readyToRun() {
+    if(pDLTool) {
+        pDLTool->run();
+    }
+    if(pOCRTool) {
+        pOCRTool->run();
+    }
+    if(pTTSTool) {
+        pTTSTool->run();
+    }
     return (pDLTool && pOCRTool && pTTSTool);
 }
 
-/*
- * @function: startOCRMgrServer
- * @brief: OCRServer for receiving msg from pDLTool, pOCRTool, pTTSTool
- * @parameter: void
- * @return: void
- */
-void OCRMgr::startOCRMgrServer() {
-    // TODO initOCRServerSocket
-    // TODO while(1)
+void OCRMgr::threadLoop() {
+    message_t msg;
+    if(pDLTool->popTxQueue(msg)) {
+        pOCRTool->pushRxQueue(msg);
+    }
+    if(pOCRTool->popTxQueue(msg)) {
+        pTTSTool->pushRxQueue(msg);
+    }
+    if(pTTSTool->popTxQueue(msg)) {
+        pDLTool->pushRxQueue(msg);
+    }
 }
-
-
-
-
-
-
-
-
-
-

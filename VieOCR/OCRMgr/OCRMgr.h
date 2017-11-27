@@ -11,30 +11,21 @@
 #include "../DLTool/DLTool.h"
 #include "../OCRTool/OCRTool.h"
 #include "../TTSTool/TTSTool.h"
-#include "../utils/socket.h"
 
-class OCRMgr {
+class OCRMgr: public Thread {
+
 public:
     OCRMgr();
     virtual ~OCRMgr();
 
-    void run();
-    void stop();
 private:
-    static OCRMgr* m_me;
-
     /* Define member variable*/
-    DLTool* pDLTool;
-    OCRTool* pOCRTool;
-    TTSTool* pTTSTool;
-    pthread_t mOCRMgrThead;
-    volatile bool mTerminateServer;
+    Thread *pDLTool = NULL;
+    Thread *pOCRTool = NULL;
+    Thread *pTTSTool = NULL;
 
-    /* Create OCRMgr_Server to receive msg from DLTool, OCRTool, TTSTool */
-    bool readyToRun();
-    static void* OCRMgrThread(void* arg);
-    void startOCRMgrServer();
-
+    virtual bool readyToRun();
+    virtual void threadLoop();
 };
 
 #endif /* OCRMGR_H_ */
