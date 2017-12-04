@@ -8,6 +8,13 @@
 #ifndef TCPHEADER_H_
 #define TCPHEADER_H_
 
+#include "../common.h"
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+
+#define BUFFER_LENGTH 1024
 
 
 

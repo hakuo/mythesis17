@@ -21,24 +21,30 @@ using namespace std;
 #define FAIL -1
 #define SUCCESS 0
 
-enum {
-    DLTOOL_SOCK = 0x00,
-    OCRTOOL_SOCK,
-    TTSTOOL_SOCK
-};
+
+#define DATA_LENG 512
+
+//enum {
+//    DLTOOL_SOCK = 0x00,
+//    OCRTOOL_SOCK,
+//    TTSTOOL_SOCK
+//};
 
 /* Define internal message format */
 typedef struct {
     uint16_t id;
     uint8_t type;
-    char* data;
-    int8_t error;           /* FAIL/SUCCESS */
+    char data[DATA_LENG];
+    bool error;           /* FAIL/SUCCESS */
 } message_t;
 
-#define INTERNAL_BUFFER 256
 /* Define message types */
 enum {
     NONE = 0x00,
+    /* External */
+    RQ_VIEOCR,
+    RS_VIEOCR,
+    /* Internal */
     RQ_DLTOOL,              /* Request to DLTool */
     RQ_OCRTOOL,             /* Request to OCRTool */
     RQ_TTSTOOL,             /* Request to TTSTool */

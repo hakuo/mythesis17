@@ -7,6 +7,8 @@
 
 #include "OCRTool.h"
 
+using namespace cv;
+
 OCRTool::OCRTool() {
 
 }
@@ -35,9 +37,10 @@ void OCRTool::threadLoop() {
     }
 }
 
-bool OCRTool::loadImage(cv::Mat& image, const char* filepath) {
+
+bool OCRTool::loadImage(Mat& image, const char* filepath) {
     bool ret;
-    image = cv::imread(filepath, CV_LOAD_IMAGE_GRAYSCALE);
+    image = imread(filepath, CV_LOAD_IMAGE_GRAYSCALE);
     if(image.data != NULL) {
         ret = true;
     }
@@ -48,9 +51,57 @@ bool OCRTool::loadImage(cv::Mat& image, const char* filepath) {
     return ret;
 }
 
+void OCRTool::showImage(Mat image, const char* title) {
+    namedWindow(title, WINDOW_AUTOSIZE);
+    imshow(title, image);
+    waitKey();
+}
 
+bool OCRTool::cvtToBin(Mat& image, uint8_t mode) {
+    bool ret;
+    switch (mode) {
+    case OCRTool::NORMAL_THRESHOLD:
+        ret = true;
+        // TODO Normal threshold
+        break;
+    case OCRTool::ADAPTIVE_THRESHOLD_MEAN:
+        ret = true;
+        adaptiveThreshold(image,            /* Input image */
+                image,                      /* Output image */
+                255,                        /* maxValue */
+                ADAPTIVE_THRESH_MEAN_C,     /* adaptiveMethod */
+                CV_THRESH_BINARY,           /* thresholdType */
+                45,                         /* blockSize */
+                1                           /* C */
+        );
+        break;
+    case OCRTool::ADAPTIVE_THRESHOLD_GAUSSIAN:
+        adaptiveThreshold(image,            /* Input image */
+                image,                      /* Output image */
+                255,                        /* maxValue */
+                ADAPTIVE_THRESH_GAUSSIAN_C, /* adaptiveMethod */
+                CV_THRESH_BINARY,           /* thresholdType */
+                45,                         /* blockSize */
+                1                           /* C */
+        );
+        ret = true;
+        break;
+    default:
+        ret = false;
+        break;
+    }
+    return ret;
+}
 
+bool OCRTool::extWord(Mat image, vector<vector<Mat> >words) {
+    bool ret;
+    return ret;
+}
 
+bool OCRTool::extChar(Mat word, vector<vector<Mat> > chars) {
+    bool ret;
+    return ret;
+}
 
 
 

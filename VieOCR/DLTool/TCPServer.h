@@ -7,16 +7,13 @@
 
 #ifndef TCPSERVER_H_
 #define TCPSERVER_H_
-#include "../common.h"
+#include "TCPHeader.h"
 #include "../Thread/Thread.h"
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <unistd.h>
-#include <arpa/inet.h>
+
 
 #define PORT 5000
 #define BACKLOG 10
-#define BUFFER_LENGTH 512
+#define BUFFER_LENGTH 1024
 
 class TCPServer: public Thread {
 public:

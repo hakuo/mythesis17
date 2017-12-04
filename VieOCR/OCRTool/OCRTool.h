@@ -15,6 +15,11 @@
 
 
 class OCRTool: public Thread {
+    enum {
+        NORMAL_THRESHOLD,
+        ADAPTIVE_THRESHOLD_MEAN,
+        ADAPTIVE_THRESHOLD_GAUSSIAN
+    };
 public:
     OCRTool();
     virtual ~OCRTool();
@@ -29,8 +34,8 @@ private:
 
     /* OCR utilities */
     bool loadImage(cv::Mat& image, const char* filepath);
-    bool showImage(cv::Mat image, const char* title);
-    bool cvtToBin(cv::Mat image, int mode);
+    void showImage(cv::Mat image, const char* title);
+    bool cvtToBin(cv::Mat& image, uint8_t mode);
     bool extWord(cv::Mat image, vector<vector<cv::Mat> >words);
     bool extChar(cv::Mat word, vector<vector<cv::Mat> > chars);
 
