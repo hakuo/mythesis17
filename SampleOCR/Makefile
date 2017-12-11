@@ -20,17 +20,18 @@ INCS+=-I./include \
 
 SRCS+=main.cpp \
 	ocr_utils/erfilter.cpp \
-	ocr_utils/ocr_holistic.cpp \
-	ocr_utils/text_detectorCNN.cpp \
-	ocr_utils/ocr_beamsearch_decoder.cpp \
 	ocr_utils/ocr_tesseract.cpp \
-	ocr_utils/ocr_hmm_decoder.cpp \
-	ocr_utils/precomp.hpp \
+#	ocr_utils/ocr_holistic.cpp \
+#	ocr_utils/text_detectorCNN.cpp \
+#	ocr_utils/ocr_beamsearch_decoder.cpp \
+#	ocr_utils/ocr_hmm_decoder.cpp \
 
 OBJS = $(SRCS:.cpp=.o)
 
 %.o: %.cpp $(DEPS)
 	$(CPP) -c -o $@ $< $(CFLAGS) $(INCS) 
+
+all: ${APP}
 
 $(APP): $(OBJS)
 	$(CPP) -o $@ $^ $(CFLAGS) $(LDFLAGS) $(INCS) ${LIB_DIRS} ${LIBS}

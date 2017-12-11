@@ -140,7 +140,7 @@ public:
     {
 
 #ifdef HAVE_TESSERACT
-        const char *lang = "eng";
+        const char *lang = "vie";
         if (language != NULL)
             lang = language;
 
