@@ -4,15 +4,12 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += main.cpp \
-    taskthread.cpp \
-    ocrtask.cpp \
-    ttstask.cpp
+    ocr.cpp \
+    tts.cpp
 
 LIBS+=`pkg-config opencv --cflags --libs`
-LIBS+=-lpthread
 
 HEADERS += \
-    taskthread.h \
-    common.h \
-    ocrtask.h \
-    ttstask.h
+    ocr.h \
+    tts.h \
+    common.h

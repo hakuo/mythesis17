@@ -52,16 +52,18 @@ void TaskThread::ThreadLoop()
 
 bool TaskThread::popTxQueue(message_t &msg)
 {
+    bool ret;
     if(txQueue.empty())
     {
-        return false;
+        ret = false;
     }
     else
     {
         msg=txQueue.front();
         txQueue.pop();
-        return true;
+        ret = true;
     }
+    return ret;
 }
 
 void TaskThread::pushTxQueue(message_t msg)
@@ -71,16 +73,18 @@ void TaskThread::pushTxQueue(message_t msg)
 
 bool TaskThread::popRxQueue(message_t &msg)
 {
+    bool ret;
     if(rxQueue.empty())
     {
-        return false;
+        ret = false;
     }
     else
     {
         msg=rxQueue.front();
         rxQueue.pop();
-        return true;
+        ret = true;
     }
+    return ret;
 }
 
 void TaskThread::pushRxQueue(message_t msg)
