@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -15,6 +16,43 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
+
+/////////////////////////////// Utilities /////////////////////////////////////
+void MainWindow::showImage(QLabel *imgWin, cv::Mat img)
+{
+    //return imgWin->setPixmap(QPixmap::fromImage(QImage(img.data, img.cols, img.rows, img.step, QImage::Format_RGB888)).scaled(imgWin->width(), imgWin->height(), Qt::KeepAspectRatio));
+    QImage qImg;
+    cv::Mat RGBImg;
+    if(img.channels()==3)
+    {
+        cv::cvtColor(img, RGBImg, CV_BGR2RGB);
+        qImg=QImage(RGBImg.data,RGBImg.cols,RGBImg.rows,QImage::Format_RGB888);
+    }
+    else if(img.channels()==1)
+    {
+        qImg=QImage(img.data,img.cols,img.rows,QImage::Format_Indexed8);
+    }
+    else {
+        return;
+    }
+    imgWin->setPixmap(QPixmap::fromImage(qImg).scaled(imgWin->width(), imgWin->height(), Qt::KeepAspectRatio));
+}
+
+training_feature_t MainWindow::getTrainingFeature()
+{
+    training_feature_t ret;
+    ret.value=0;
+    if(ui->groupBox->isEnabled())
+    {
+        ret.Zoning=(ui->zoningCheckBox->isChecked())?1:0;
+        ret.Distance=(ui->distanceCheckBox->isChecked())?1:0;
+        ret.Crossing=(ui->crossingCheckBox->isChecked())?1:0;
+    }
+    return ret;
+}
+
+
+/////////////////////////////// Event handlers ///////////////////////////////
 
 void MainWindow::on_imgBrowseButton_released()
 {
@@ -31,8 +69,48 @@ void MainWindow::on_imgBrowseButton_released()
 
 }
 
-void MainWindow::showImage(QLabel *imgWin, cv::Mat img)
+
+void MainWindow::on_preprocButton_released()
 {
-    return imgWin->setPixmap(QPixmap::fromImage(QImage(img.data, img.cols, img.rows, img.step, QImage::Format_RGB888)).scaled(imgWin->width(), imgWin->height(), Qt::KeepAspectRatio));
+    qDebug() << getTrainingFeature().value;
+}
+
+void MainWindow::on_extWordButton_released()
+{
+
+}
+
+void MainWindow::on_extCharButton_released()
+{
+
+}
+
+void MainWindow::on_comboBox_currentIndexChanged(int index)
+{
+    ui->groupBox->setDisabled(index!=0);
+}
+
+void MainWindow::on_trainButton_released()
+{
+
+}
+
+void MainWindow::on_OCRButton_released()
+{
+
+}
+
+void MainWindow::on_postprocButton_released()
+{
+
+}
+
+void MainWindow::on_TTSButton_released()
+{
+
+}
+
+void MainWindow::on_autoButton_released()
+{
 
 }
