@@ -9,9 +9,15 @@ class ImageProcessing
 public:
     ImageProcessing();
     ~ImageProcessing();
+    cv::Mat mImageGray;
+
     bool loadImage(const string imagePath);
     bool loadImage(cv::Mat &image, const string imagePath);
-    cv::Mat mImageGray;
+    void cvtGray2Bin(cv::Mat& outImage, cv::Mat inImage);
+    void skewCorrector(cv::Mat& outImage, cv::Mat inImage);
+    void extWords(vector<cv::Mat>& wordArray, cv::Mat image);
+    void extChars(vector<cv::Mat>& charArray, cv::Mat word);
+
 
 };
 

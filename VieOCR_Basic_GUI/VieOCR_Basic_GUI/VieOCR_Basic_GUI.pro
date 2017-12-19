@@ -26,12 +26,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    imageprocessing.cpp
+    imageprocessing.cpp \
+    ocr.cpp \
+    bkocr.cpp \
+    tesseractocr.cpp \
+    ocrfactory.cpp
 
 HEADERS += \
         mainwindow.h \
     imageprocessing.h \
-    common.h
+    common.h \
+    ocr.h \
+    bkocr.h \
+    tesseractocr.h \
+    ocrfactory.h
 
 FORMS += \
         mainwindow.ui

@@ -1,8 +1,9 @@
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QDebug>
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
+#include "ocrfactory.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -72,7 +73,7 @@ void MainWindow::on_imgBrowseButton_released()
 
 void MainWindow::on_preprocButton_released()
 {
-    qDebug() << getTrainingFeature().value;
+
 }
 
 void MainWindow::on_extWordButton_released()
@@ -92,7 +93,8 @@ void MainWindow::on_comboBox_currentIndexChanged(int index)
 
 void MainWindow::on_trainButton_released()
 {
-
+    OCR* ocr_tool = OCRFactory::Get()->createOCR((OCR::ocr_type_t)ui->comboBox->currentIndex());
+    delete ocr_tool;
 }
 
 void MainWindow::on_OCRButton_released()

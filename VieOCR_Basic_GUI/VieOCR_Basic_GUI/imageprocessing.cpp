@@ -20,7 +20,7 @@ bool ImageProcessing::loadImage(const string imagePath)
 bool ImageProcessing::loadImage(Mat &image, const string imagePath)
 {
     bool ret;
-    image = imread(imagePath, CV_LOAD_IMAGE_COLOR);
+    image = imread(imagePath, CV_LOAD_IMAGE_GRAYSCALE);
     if(image.data == NULL)
     {
         perror("Error in loading image");
@@ -35,9 +35,4 @@ bool ImageProcessing::loadImage(Mat &image, const string imagePath)
     return ret;
 }
 
-//void ImageProcessing::showImage(Mat image, const string winname)
-//{
-//    namedWindow(winname, WINDOW_AUTOSIZE);
-//    imshow(winname, image);
-//    //waitKey();
-//}
+
