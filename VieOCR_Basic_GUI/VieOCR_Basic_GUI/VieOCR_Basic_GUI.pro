@@ -24,25 +24,55 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += \
-        main.cpp \
-        mainwindow.cpp \
-    imageprocessing.cpp \
-    ocr.cpp \
-    bkocr.cpp \
-    tesseractocr.cpp \
-    ocrfactory.cpp
+    ocr/bkocr.cpp \
+    ocr/imageprocessing.cpp \
+    ocr/ocr.cpp \
+    ocr/ocrfactory.cpp \
+    ocr/tesseractocr.cpp \
+    task/ocrtask.cpp \
+    task/taskthread.cpp \
+    task/tcpservertask.cpp \
+    task/ttstask.cpp \
+    tcp_server/tcpserver.cpp \
+    tesseract/src/erfilter.cpp \
+    tesseract/src/ocr_beamsearch_decoder.cpp \
+    tesseract/src/ocr_hmm_decoder.cpp \
+    tesseract/src/ocr_holistic.cpp \
+    tesseract/src/ocr_tesseract.cpp \
+    tesseract/src/text_detectorCNN.cpp \
+    tts/tts.cpp \
+    main.cpp \
+    mainwindow.cpp
+
+
 
 HEADERS += \
-        mainwindow.h \
-    imageprocessing.h \
+    ocr/bkocr.h \
+    ocr/imageprocessing.h \
+    ocr/ocr.h \
+    ocr/ocrfactory.h \
+    ocr/tesseractocr.h \
+    task/ocrtask.h \
+    task/taskthread.h \
+    task/tcpservertask.h \
+    task/ttstask.h \
+    tcp_server/tcpserver.h \
+    tesseract/include/text/erfilter.hpp \
+    tesseract/include/text/ocr.hpp \
+    tesseract/include/text/textDetector.hpp \
+    tesseract/include/precomp.hpp \
+    tesseract/include/text.hpp \
+    tts/tts.h \
     common.h \
-    ocr.h \
-    bkocr.h \
-    tesseractocr.h \
-    ocrfactory.h
+    mainwindow.h
+
+
+
 
 FORMS += \
         mainwindow.ui
 
-LIBS += -lpthread
+LIBS += -lpthread -ltesseract
 LIBS += `pkg-config opencv --cflags --libs`
+
+DEFINES += HAVE_TESSERACT

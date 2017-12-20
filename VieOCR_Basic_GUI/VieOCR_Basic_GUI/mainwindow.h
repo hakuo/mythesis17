@@ -2,8 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QLabel>
-#include "imageprocessing.h"
+#include "ocr/imageprocessing.h"
 #include "common.h"
 
 namespace Ui {
@@ -29,8 +28,6 @@ private slots:
 
     void on_comboBox_currentIndexChanged(int index);
 
-    void on_trainButton_released();
-
     void on_OCRButton_released();
 
     void on_postprocButton_released();
@@ -43,7 +40,6 @@ private:
     Ui::MainWindow *ui;
     ImageProcessing mImgProc;
 
-    void showImage(QLabel* imgWin, cv::Mat img);
     training_feature_t getTrainingFeature();
 };
 

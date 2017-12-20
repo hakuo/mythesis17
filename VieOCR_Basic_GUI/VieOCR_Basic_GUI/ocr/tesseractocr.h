@@ -12,6 +12,7 @@ public:
     {
         return new TesseractOCR();
     }
+    bool init();
 };
 
 #endif // TESSERACTOCR_H

@@ -3,23 +3,11 @@
 #include <QDebug>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "ocrfactory.h"
-
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
-{
-    ui->setupUi(this);
-    ui->statusBar->showMessage("Status");
-}
-
-MainWindow::~MainWindow()
-{
-    delete ui;
-}
+#include "ocr/ocrfactory.h"
 
 /////////////////////////////// Utilities /////////////////////////////////////
-void MainWindow::showImage(QLabel *imgWin, cv::Mat img)
+namespace Utility {
+void showImage(QLabel *imgWin, cv::Mat img)
 {
     //return imgWin->setPixmap(QPixmap::fromImage(QImage(img.data, img.cols, img.rows, img.step, QImage::Format_RGB888)).scaled(imgWin->width(), imgWin->height(), Qt::KeepAspectRatio));
     QImage qImg;
@@ -38,6 +26,21 @@ void MainWindow::showImage(QLabel *imgWin, cv::Mat img)
     }
     imgWin->setPixmap(QPixmap::fromImage(qImg).scaled(imgWin->width(), imgWin->height(), Qt::KeepAspectRatio));
 }
+}
+
+/////////////////////////// MAIN WINDOWS ////////////////////////////
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
+{
+    ui->setupUi(this);
+    ui->statusBar->showMessage("Status");
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
 
 training_feature_t MainWindow::getTrainingFeature()
 {
@@ -53,6 +56,9 @@ training_feature_t MainWindow::getTrainingFeature()
 }
 
 
+
+
+
 /////////////////////////////// Event handlers ///////////////////////////////
 
 void MainWindow::on_imgBrowseButton_released()
@@ -61,7 +67,7 @@ void MainWindow::on_imgBrowseButton_released()
     if(!filename.isNull() && mImgProc.loadImage(filename.toStdString()))
     {
         ui->lineImgPath->setText(filename);
-        showImage(ui->imgShow, mImgProc.mImageGray);
+        Utility::showImage(ui->imgShow, mImgProc.mImageGray);
     }
     else
     {
@@ -91,15 +97,10 @@ void MainWindow::on_comboBox_currentIndexChanged(int index)
     ui->groupBox->setDisabled(index!=0);
 }
 
-void MainWindow::on_trainButton_released()
+void MainWindow::on_OCRButton_released()
 {
     OCR* ocr_tool = OCRFactory::Get()->createOCR((OCR::ocr_type_t)ui->comboBox->currentIndex());
     delete ocr_tool;
-}
-
-void MainWindow::on_OCRButton_released()
-{
-
 }
 
 void MainWindow::on_postprocButton_released()
