@@ -40,7 +40,7 @@
 //
 //M*/
 
-#include "tesseract/include/precomp.hpp"
+#include "ocr/tesseract/include/precomp.hpp"
 #include "opencv2/imgproc.hpp"
 #include "opencv2/ml.hpp"
 

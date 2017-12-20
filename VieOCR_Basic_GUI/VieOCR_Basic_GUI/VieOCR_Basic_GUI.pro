@@ -24,6 +24,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += \
+    ocr/tesseract/src/erfilter.cpp \
+    ocr/tesseract/src/ocr_beamsearch_decoder.cpp \
+    ocr/tesseract/src/ocr_hmm_decoder.cpp \
+    ocr/tesseract/src/ocr_holistic.cpp \
+    ocr/tesseract/src/ocr_tesseract.cpp \
+    ocr/tesseract/src/text_detectorCNN.cpp \
     ocr/bkocr.cpp \
     ocr/imageprocessing.cpp \
     ocr/ocr.cpp \
@@ -34,19 +40,19 @@ SOURCES += \
     task/tcpservertask.cpp \
     task/ttstask.cpp \
     tcp_server/tcpserver.cpp \
-    tesseract/src/erfilter.cpp \
-    tesseract/src/ocr_beamsearch_decoder.cpp \
-    tesseract/src/ocr_hmm_decoder.cpp \
-    tesseract/src/ocr_holistic.cpp \
-    tesseract/src/ocr_tesseract.cpp \
-    tesseract/src/text_detectorCNN.cpp \
     tts/tts.cpp \
     main.cpp \
     mainwindow.cpp
 
 
 
+
 HEADERS += \
+    ocr/tesseract/include/text/erfilter.hpp \
+    ocr/tesseract/include/text/ocr.hpp \
+    ocr/tesseract/include/text/textDetector.hpp \
+    ocr/tesseract/include/precomp.hpp \
+    ocr/tesseract/include/text.hpp \
     ocr/bkocr.h \
     ocr/imageprocessing.h \
     ocr/ocr.h \
@@ -57,14 +63,10 @@ HEADERS += \
     task/tcpservertask.h \
     task/ttstask.h \
     tcp_server/tcpserver.h \
-    tesseract/include/text/erfilter.hpp \
-    tesseract/include/text/ocr.hpp \
-    tesseract/include/text/textDetector.hpp \
-    tesseract/include/precomp.hpp \
-    tesseract/include/text.hpp \
     tts/tts.h \
     common.h \
     mainwindow.h
+
 
 
 
