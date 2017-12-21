@@ -1,6 +1,6 @@
 #include "tcpserver.h"
 
-TCPServer::TCPServer()
+TcpServer::TcpServer()
 {
 
 }

@@ -2,10 +2,10 @@
 #define TCPSERVER_H
 
 
-class TCPServer
+class TcpServer
 {
 public:
-    TCPServer();
+    TcpServer();
 };
 
 #endif // TCPSERVER_H

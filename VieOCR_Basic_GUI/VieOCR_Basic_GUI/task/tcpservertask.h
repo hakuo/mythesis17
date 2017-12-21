@@ -2,10 +2,10 @@
 #define TCPSERVERTASK_H
 
 
-class TCPServerTask
+class TcpServerTask
 {
 public:
-    TCPServerTask();
+    TcpServerTask();
 };
 
 #endif // TCPSERVERTASK_H

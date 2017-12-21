@@ -22,7 +22,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-
 SOURCES += \
     ocr/tesseract/src/erfilter.cpp \
     ocr/tesseract/src/ocr_beamsearch_decoder.cpp \
@@ -44,9 +43,6 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp
 
-
-
-
 HEADERS += \
     ocr/tesseract/include/text/erfilter.hpp \
     ocr/tesseract/include/text/ocr.hpp \
@@ -66,10 +62,6 @@ HEADERS += \
     tts/tts.h \
     common.h \
     mainwindow.h
-
-
-
-
 
 FORMS += \
         mainwindow.ui

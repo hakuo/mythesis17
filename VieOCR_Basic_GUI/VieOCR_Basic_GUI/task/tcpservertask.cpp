@@ -1,6 +1,6 @@
 #include "tcpservertask.h"
 
-TCPServerTask::TCPServerTask()
+TcpServerTask::TcpServerTask()
 {
 
 }
