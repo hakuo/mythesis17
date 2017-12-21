@@ -181,7 +181,7 @@ void TcpServer::run()
                 {
                     // Receive data on this connection until the recv fails with EWOULDBLOCK
                     // If any other failure occurs, we will close the connection
-                    rxBuffer = (uint8_t *) calloc(BUFFER_SIZE, 1);
+                    rxBuffer = (uint8_t *) calloc(TCP_BUFFER_SIZE, 1);
                     rc = recv(fds[i].fd, rxBuffer, sizeof(rxBuffer), 0);
                     if(rc < 0)
                     {
@@ -302,20 +302,22 @@ uint8_t* TcpServer::startDownload(const uint8_t *data)
     TcpSocket::request_t cmd = TcpSocket::START_DOWNLOAD;
     switch (mState) {
     case TcpSocket::START_DOWNLOAD:
-        memcpy(&mFileInfo, data, sizeof(mFileInfo));
-        std::cout << "file_type: " << (int)mFileInfo.type << std::endl;
-        std::cout << "file_size: " << (int)mFileInfo.size << std::endl;
-        std::cout << "file_crc: " << (int)mFileInfo.crc << std::endl;
+        memcpy(&mFile.header, data, sizeof(mFile.header));
+        std::cout << "file_type: " << (int)mFile.header.type << std::endl;
+        std::cout << "file_size: " << (int)mFile.header.size << std::endl;
+        std::cout << "file_crc: " << (int)mFile.header.crc << std::endl;
+
+        TcpSocket::genFilePath(mFile, DOWNLOAD_FOLDER);
         // TODO: checkAvailable to write
-        if(checkAvailableToWrite(mFileInfo.size))
+        if(TcpSocket::checkAvailableToWrite(mFile))
         {
-            buffer = allocResponse(cmd, TcpSocket::POSITIVE_RESPONSE);
+            buffer = TcpSocket::allocResponse(cmd, TcpSocket::POSITIVE_RESPONSE);
             mState = TcpSocket::TRANFER_FILE;
         }
         else
         {
             // File too large, don't have enough memory
-            buffer = allocResponse(cmd, TcpSocket::NEGATIVE_RESPONSE_NOTSEND);
+            buffer = TcpSocket::allocResponse(cmd, TcpSocket::NEGATIVE_RESPONSE_NOTSEND);
         }
         break;
     case TcpSocket::TRANFER_FILE:
@@ -323,7 +325,7 @@ uint8_t* TcpServer::startDownload(const uint8_t *data)
     case TcpSocket::END_DOWNLOAD: // Never turn to this state
         // fall-through
     default:
-        buffer = allocResponse(cmd, TcpSocket::NEGATIVE_RESPONSE_RESEND);
+        buffer = TcpSocket::allocResponse(cmd, TcpSocket::NEGATIVE_RESPONSE_RESEND);
         break;
     }
     return buffer;
@@ -336,8 +338,8 @@ uint8_t* TcpServer::transferFile(const uint8_t *data)
     switch (mState) {
     case TcpSocket::TRANFER_FILE:
         // TODO: write File
-        if(writeFileToMemory(data)){ buffer = allocResponse(cmd, TcpSocket::POSITIVE_RESPONSE); }
-        else{ buffer = allocResponse(cmd, TcpSocket::NEGATIVE_RESPONSE_RESEND); }
+        if(TcpSocket::writeFileToMemory(mFile.filepath, data, TCP_BUFFER_SIZE)){ buffer = allocResponse(cmd, TcpSocket::POSITIVE_RESPONSE); }
+        else{ buffer = TcpSocket::allocResponse(cmd, TcpSocket::NEGATIVE_RESPONSE_RESEND); }
         // don't change state
         break;
     case TcpSocket::START_DOWNLOAD:
@@ -345,7 +347,7 @@ uint8_t* TcpServer::transferFile(const uint8_t *data)
     case TcpSocket::END_DOWNLOAD: // Never turn to this state
         // fall-through
     default:
-        buffer = allocResponse(cmd, TcpSocket::NEGATIVE_RESPONSE_RESEND);
+        buffer = TcpSocket::allocResponse(cmd, TcpSocket::NEGATIVE_RESPONSE_RESEND);
         break;
     }
     return buffer;
@@ -359,8 +361,8 @@ uint8_t* TcpServer::endDownload()
     switch (mState) {
     case TcpSocket::TRANFER_FILE:
         // TODO: calcFileCRC
-        if(calcFileCRC(mFilePath) == mFileInfo.crc){ buffer = allocResponse(cmd, TcpSocket::POSITIVE_RESPONSE); }
-        else { buffer = allocResponse(cmd, TcpSocket::NEGATIVE_RESPONSE_RESEND); }
+        if(TcpSocket::calcFileCRC(mFile.filepath) == mFile.header.crc){ buffer = allocResponse(cmd, TcpSocket::POSITIVE_RESPONSE); }
+        else { buffer = TcpSocket::allocResponse(cmd, TcpSocket::NEGATIVE_RESPONSE_RESEND); }
         // Change state to start download again
         mState = TcpSocket::START_DOWNLOAD;
         break;
@@ -369,39 +371,13 @@ uint8_t* TcpServer::endDownload()
     case TcpSocket::END_DOWNLOAD: // Never turn to this state
         // fall-through
     default:
-        buffer = allocResponse(cmd, TcpSocket::NEGATIVE_RESPONSE_RESEND);
+        buffer = TcpSocket::allocResponse(cmd, TcpSocket::NEGATIVE_RESPONSE_RESEND);
         break;
     }
     return buffer;
 }
 
-uint8_t* TcpServer::allocResponse(TcpSocket::request_t cmd, TcpSocket::response_t error_code, uint8_t *data, uint16_t len)
-{
-    TcpSocket::tcp_pkg_t* buffer = (TcpSocket::tcp_pkg_t*)calloc(BUFFER_SIZE, 1);
-    buffer->header.cmd = cmd;
-    buffer->header.error_code = error_code;
-    if((data != NULL) && (len != 0))
-    {
-        memcpy(buffer->data, data, len);
-    }
-    return (uint8_t*)buffer;
-}
 
-bool TcpServer::checkAvailableToWrite(uint32_t file_size)
-{
-    return true;
-}
-
-bool TcpServer::writeFileToMemory(const uint8_t *data)
-{
-    return true;
-}
-
-uint32_t TcpServer::calcFileCRC(const std::string filepath)
-{
-    uint32_t crc = 0;
-    return crc;
-}
 //bool TcpServer::sendFile(int client_sock, const std::string filepath)
 //{
 //    bool ret = false;

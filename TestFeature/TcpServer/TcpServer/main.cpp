@@ -2,17 +2,15 @@
 #include "tcpsocket.h"
 using namespace std;
 
-typedef struct
-{
-    char c;
-    int i;
-} mstruct;
+
 
 int main()
 {
     cout << "Hello World!" << endl;
-
-    cout << "sizeof(tcp_pkg_t): " << (int)sizeof(TcpSocket::tcp_pkg_t) << endl;
-    cout << "sizeof(mstruct)" << int(sizeof(mstruct)) << endl;
+    TcpSocket::file_t file;
+    file.header.type = TcpSocket::TXT_FILE;
+    file.header.size = 10;
+    TcpSocket::genFilePath(file, DOWNLOAD_FOLDER);
+    TcpSocket::checkAvailableToWrite(file);
     return 0;
 }

@@ -20,17 +20,13 @@ public:
 
 private:
     TcpSocket::request_t mState;
-    TcpSocket::file_info_t mFileInfo;
-    std::string mFilePath;
+    TcpSocket::file_t mFile;
     void closeSock(int &sockfd);
     uint8_t* handleMessage(const TcpSocket::tcp_pkg_t* package);
     uint8_t* startDownload(const uint8_t* data);
     uint8_t* transferFile(const uint8_t* data);
     uint8_t* endDownload();
-    uint8_t* allocResponse(TcpSocket::request_t cmd, TcpSocket::response_t error_code, uint8_t* data = NULL, uint16_t len = 0);
-    bool checkAvailableToWrite(uint32_t file_size);
-    bool writeFileToMemory(const uint8_t *data);
-    uint32_t calcFileCRC(const std::string filepath);
+
 
     bool sendToClient(int client_sock, char* data, uint16_t len);
     uint16_t recvFromClient(int client_sock, char* data);
