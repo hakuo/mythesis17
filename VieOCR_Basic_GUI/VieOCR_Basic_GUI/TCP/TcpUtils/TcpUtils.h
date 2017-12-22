@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <string>
 
-namespace TcpSocket {
+namespace TcpUtils {
 
 #define SERVER_PORT 12345
 #define DATA_SIZE 1024
@@ -45,7 +45,7 @@ typedef struct
     header_t header;
     uint8_t data[DATA_SIZE];
 }tcp_pkg_t;
-#define TCP_BUFFER_SIZE sizeof(TcpSocket::tcp_pkg_t)
+#define TCP_BUFFER_SIZE sizeof(TcpUtils::tcp_pkg_t)
 
 typedef struct
 {
@@ -60,7 +60,7 @@ typedef struct
     std::string filepath;
 }file_t;
 
-uint8_t* allocResponse(TcpSocket::request_t cmd, TcpSocket::response_t error_code, uint8_t* data = NULL, uint16_t len = 0);
+uint8_t* allocResponse(request_t cmd, response_t error_code, uint8_t* data = NULL, uint16_t len = 0);
 bool checkAvailableToWrite(file_t file);
 bool writeFileToMemory(const std::string filepath, const uint8_t *data, uint16_t datalen);
 uint32_t calcFileCRC(const std::string filepath);
@@ -71,6 +71,6 @@ bool checkDirExist(const char* dir);
 bool createDirectory(const char* dir);
 bool initEnv();
 
-} // namaspace TcpSocket
+} // namaspace TcpUtils
 
 #endif // SOCKET_TYPES_H

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include "tcpsocket.h"
+#include "TCP/TcpUtils/TcpUtils.h"
 
 class TcpServer
 {
@@ -19,10 +19,10 @@ public:
     void stop();
 
 private:
-    TcpSocket::request_t mState;
-    TcpSocket::file_t mFile;
+    TcpUtils::request_t mState;
+    TcpUtils::file_t mFile;
     void closeSock(int &sockfd);
-    uint8_t* handleMessage(const TcpSocket::tcp_pkg_t* package);
+    uint8_t* handleMessage(const TcpUtils::tcp_pkg_t* package);
     uint8_t* startDownload(const uint8_t* data);
     uint8_t* transferFile(const uint8_t* data);
     uint8_t* endDownload();

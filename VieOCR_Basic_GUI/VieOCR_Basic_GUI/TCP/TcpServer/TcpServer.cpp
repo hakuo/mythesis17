@@ -1,4 +1,4 @@
-#include "tcpserver.h"
+#include "TcpServer.h"
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -205,7 +205,7 @@ void TcpServer::run()
                     std::cout << (int)rc << " bytes received" << std::endl;
 
                     // Handle data and send response to client
-                    txBuffer = handleMessage((TcpSocket::tcp_pkg_t*)rxBuffer);
+                    txBuffer = handleMessage((TcpUtils::tcp_pkg_t*)rxBuffer);
                     rc = send(fds[i].fd, txBuffer, sizeof(txBuffer), 0);
                     if(rc < 0)
                     {
@@ -276,18 +276,18 @@ void TcpServer::closeSock(int &sockfd)
     sockfd = -1;
 }
 
-uint8_t* TcpServer::handleMessage(const TcpSocket::tcp_pkg_t *package)
+uint8_t* TcpServer::handleMessage(const TcpUtils::tcp_pkg_t *package)
 {
     uint8_t* buffer = NULL;
-    TcpSocket::request_t fn_type = package->header.cmd;
+    TcpUtils::request_t fn_type = package->header.cmd;
     switch (fn_type) {
-    case TcpSocket::START_DOWNLOAD:
+    case TcpUtils::START_DOWNLOAD:
         buffer = startDownload(package->data);
         break;
-    case TcpSocket::TRANFER_FILE:
+    case TcpUtils::TRANFER_FILE:
         buffer = transferFile(package->data);
         break;
-    case TcpSocket::END_DOWNLOAD:
+    case TcpUtils::END_DOWNLOAD:
         buffer = endDownload();
         break;
     default:
@@ -299,32 +299,32 @@ uint8_t* TcpServer::handleMessage(const TcpSocket::tcp_pkg_t *package)
 uint8_t* TcpServer::startDownload(const uint8_t *data)
 {
     uint8_t* buffer;
-    TcpSocket::request_t cmd = TcpSocket::START_DOWNLOAD;
+    TcpUtils::request_t cmd = TcpUtils::START_DOWNLOAD;
     switch (mState) {
-    case TcpSocket::START_DOWNLOAD:
+    case TcpUtils::START_DOWNLOAD:
         memcpy(&mFile.header, data, sizeof(mFile.header));
         std::cout << "file_type: " << (int)mFile.header.type << std::endl;
         std::cout << "file_size: " << (int)mFile.header.size << std::endl;
         std::cout << "file_crc: " << (int)mFile.header.crc << std::endl;
 
-        TcpSocket::genFilePath(mFile, DOWNLOAD_FOLDER);
-        if(TcpSocket::checkAvailableToWrite(mFile))
+        TcpUtils::genFilePath(mFile, DOWNLOAD_FOLDER);
+        if(TcpUtils::checkAvailableToWrite(mFile))
         {
-            buffer = TcpSocket::allocResponse(cmd, TcpSocket::POSITIVE_RESPONSE);
-            mState = TcpSocket::TRANFER_FILE;
+            buffer = TcpUtils::allocResponse(cmd, TcpUtils::POSITIVE_RESPONSE);
+            mState = TcpUtils::TRANFER_FILE;
         }
         else
         {
             // File too large, don't have enough memory
-            buffer = TcpSocket::allocResponse(cmd, TcpSocket::NEGATIVE_RESPONSE_NOTSEND);
+            buffer = TcpUtils::allocResponse(cmd, TcpUtils::NEGATIVE_RESPONSE_NOTSEND);
         }
         break;
-    case TcpSocket::TRANFER_FILE:
+    case TcpUtils::TRANFER_FILE:
         // fall-through
-    case TcpSocket::END_DOWNLOAD: // Never turn to this state
+    case TcpUtils::END_DOWNLOAD: // Never turn to this state
         // fall-through
     default:
-        buffer = TcpSocket::allocResponse(cmd, TcpSocket::NEGATIVE_RESPONSE_RESEND);
+        buffer = TcpUtils::allocResponse(cmd, TcpUtils::NEGATIVE_RESPONSE_RESEND);
         break;
     }
     return buffer;
@@ -333,19 +333,19 @@ uint8_t* TcpServer::startDownload(const uint8_t *data)
 uint8_t* TcpServer::transferFile(const uint8_t *data)
 {
     uint8_t* buffer;
-    TcpSocket::request_t cmd = TcpSocket::TRANFER_FILE;
+    TcpUtils::request_t cmd = TcpUtils::TRANFER_FILE;
     switch (mState) {
-    case TcpSocket::TRANFER_FILE:
-        if(TcpSocket::writeFileToMemory(mFile.filepath, data, TCP_BUFFER_SIZE)){ buffer = allocResponse(cmd, TcpSocket::POSITIVE_RESPONSE); }
-        else{ buffer = TcpSocket::allocResponse(cmd, TcpSocket::NEGATIVE_RESPONSE_RESEND); }
+    case TcpUtils::TRANFER_FILE:
+        if(TcpUtils::writeFileToMemory(mFile.filepath, data, TCP_BUFFER_SIZE)){ buffer = allocResponse(cmd, TcpUtils::POSITIVE_RESPONSE); }
+        else{ buffer = TcpUtils::allocResponse(cmd, TcpUtils::NEGATIVE_RESPONSE_RESEND); }
         // don't change state
         break;
-    case TcpSocket::START_DOWNLOAD:
+    case TcpUtils::START_DOWNLOAD:
         // fall-through
-    case TcpSocket::END_DOWNLOAD: // Never turn to this state
+    case TcpUtils::END_DOWNLOAD: // Never turn to this state
         // fall-through
     default:
-        buffer = TcpSocket::allocResponse(cmd, TcpSocket::NEGATIVE_RESPONSE_RESEND);
+        buffer = TcpUtils::allocResponse(cmd, TcpUtils::NEGATIVE_RESPONSE_RESEND);
         break;
     }
     return buffer;
@@ -355,25 +355,25 @@ uint8_t* TcpServer::endDownload()
 {
     uint8_t* buffer;
 
-    TcpSocket::request_t cmd = TcpSocket::END_DOWNLOAD;
+    TcpUtils::request_t cmd = TcpUtils::END_DOWNLOAD;
     switch (mState) {
-    case TcpSocket::TRANFER_FILE:
-        if(TcpSocket::verifyDownloadPackage(mFile))
+    case TcpUtils::TRANFER_FILE:
+        if(TcpUtils::verifyDownloadPackage(mFile))
         {
-            buffer = allocResponse(cmd, TcpSocket::POSITIVE_RESPONSE);
+            buffer = allocResponse(cmd, TcpUtils::POSITIVE_RESPONSE);
             // TODO: notify OCR Module
             notifyFileAvailable(mFile.filepath);
         }
-        else { buffer = TcpSocket::allocResponse(cmd, TcpSocket::NEGATIVE_RESPONSE_RESEND); }
+        else { buffer = TcpUtils::allocResponse(cmd, TcpUtils::NEGATIVE_RESPONSE_RESEND); }
         // Change state to start download again
-        mState = TcpSocket::START_DOWNLOAD;
+        mState = TcpUtils::START_DOWNLOAD;
         break;
-    case TcpSocket::START_DOWNLOAD:
+    case TcpUtils::START_DOWNLOAD:
         // fall-through
-    case TcpSocket::END_DOWNLOAD: // Never turn to this state
+    case TcpUtils::END_DOWNLOAD: // Never turn to this state
         // fall-through
     default:
-        buffer = TcpSocket::allocResponse(cmd, TcpSocket::NEGATIVE_RESPONSE_RESEND);
+        buffer = TcpUtils::allocResponse(cmd, TcpUtils::NEGATIVE_RESPONSE_RESEND);
         break;
     }
     return buffer;
@@ -382,6 +382,7 @@ uint8_t* TcpServer::endDownload()
 void TcpServer::notifyFileAvailable(const std::string filepath)
 {
     // TODO: pushTxQueue
+    std::cout << "File  " << filepath << " download successful" << std::endl;
 }
 
 

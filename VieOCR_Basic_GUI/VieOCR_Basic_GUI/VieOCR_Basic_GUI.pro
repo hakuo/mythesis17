@@ -23,50 +23,70 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    ocr/tesseract/src/erfilter.cpp \
-    ocr/tesseract/src/ocr_beamsearch_decoder.cpp \
-    ocr/tesseract/src/ocr_hmm_decoder.cpp \
-    ocr/tesseract/src/ocr_holistic.cpp \
-    ocr/tesseract/src/ocr_tesseract.cpp \
-    ocr/tesseract/src/text_detectorCNN.cpp \
-    ocr/bkocr.cpp \
-    ocr/imageprocessing.cpp \
-    ocr/ocr.cpp \
-    ocr/ocrfactory.cpp \
-    ocr/tesseractocr.cpp \
-    task/ocrtask.cpp \
-    task/taskthread.cpp \
-    task/tcpservertask.cpp \
-    task/ttstask.cpp \
-    tcp_server/tcpserver.cpp \
-    tts/tts.cpp \
+    OCR/OCR_Utils/src/erfilter.cpp \
+    OCR/OCR_Utils/src/ocr_beamsearch_decoder.cpp \
+    OCR/OCR_Utils/src/ocr_hmm_decoder.cpp \
+    OCR/OCR_Utils/src/ocr_holistic.cpp \
+    OCR/OCR_Utils/src/ocr_tesseract.cpp \
+    OCR/OCR_Utils/src/text_detectorCNN.cpp \
+    OCR/DnnOCR.cpp \
+    OCR/ImageProcessing.cpp \
+    OCR/OCR.cpp \
+    OCR/OCR_Factory.cpp \
+    OCR/TesseractOCR.cpp \
+    Task/OCR_Task.cpp \
+    Task/TaskThread.cpp \
+    Task/TcpServer_Task.cpp \
+    Task/TTS_Task.cpp \
+    TCP/TcpServer/TcpServer.cpp \
+    TCP/TcpUtils/TcpUltis.cpp \
+    TTS/TTS_Utils/Sound.cpp \
+    TTS/TTS_Utils/TextObjectTTS.cpp \
+    TTS/TTS_Utils/UnitSelector.cpp \
+    TTS/TTS.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    TTS/TTS_Utils/debug.c \
+    TCP/TcpClient/TcpClient.cpp
+
 
 HEADERS += \
-    ocr/tesseract/include/text/erfilter.hpp \
-    ocr/tesseract/include/text/ocr.hpp \
-    ocr/tesseract/include/text/textDetector.hpp \
-    ocr/tesseract/include/precomp.hpp \
-    ocr/tesseract/include/text.hpp \
-    ocr/bkocr.h \
-    ocr/imageprocessing.h \
-    ocr/ocr.h \
-    ocr/ocrfactory.h \
-    ocr/tesseractocr.h \
-    task/ocrtask.h \
-    task/taskthread.h \
-    task/tcpservertask.h \
-    task/ttstask.h \
-    tcp_server/tcpserver.h \
-    tts/tts.h \
+    OCR/OCR_Utils/include/text/erfilter.hpp \
+    OCR/OCR_Utils/include/text/ocr.hpp \
+    OCR/OCR_Utils/include/text/textDetector.hpp \
+    OCR/OCR_Utils/include/precomp.hpp \
+    OCR/OCR_Utils/include/text.hpp \
+    OCR/DnnOCR.h \
+    OCR/ImageProcessing.h \
+    OCR/OCR.h \
+    OCR/OCR_Factory.h \
+    OCR/TesseractOCR.h \
+    Task/OCR_Task.h \
+    Task/TaskThread.h \
+    Task/TcpServer_Task.h \
+    Task/TTS_Task.h \
+    TCP/TcpServer/TcpServer.h \
+    TCP/TcpUtils/TcpUtils.h \
+    TTS/TTS_Utils/config.h \
+    TTS/TTS_Utils/debug.h \
+    TTS/TTS_Utils/Sound.h \
+    TTS/TTS_Utils/TextObjectTTS.h \
+    TTS/TTS_Utils/UnitSelector.h \
+    TTS/TTS.h \
     common.h \
-    mainwindow.h
+    mainwindow.h \
+    TCP/TcpClient/TcpClient.h
+
 
 FORMS += \
         mainwindow.ui
 
 LIBS += -lpthread -ltesseract
 LIBS += `pkg-config opencv --cflags --libs`
+LIBS += -lasound -lglib-2.0
+
+INCLUDEPATH += /usr/include/glib-2.0/ \
+    /usr/lib/x86_64-linux-gnu/glib-2.0/include/ \
+    /home/cuongdh8/workspace/lib/boost_1_66_0 \
 
 DEFINES += HAVE_TESSERACT

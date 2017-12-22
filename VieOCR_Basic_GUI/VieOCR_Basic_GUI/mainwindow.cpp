@@ -3,7 +3,7 @@
 #include <QDebug>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "ocr/ocrfactory.h"
+#include "OCR/OCR_Factory.h"
 
 /////////////////////////////// Utilities /////////////////////////////////////
 namespace Utility {
@@ -42,22 +42,6 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-training_feature_t MainWindow::getTrainingFeature()
-{
-    training_feature_t ret;
-    ret.value=0;
-    if(ui->groupBox->isEnabled())
-    {
-        ret.Zoning=(ui->zoningCheckBox->isChecked())?1:0;
-        ret.Distance=(ui->distanceCheckBox->isChecked())?1:0;
-        ret.Crossing=(ui->crossingCheckBox->isChecked())?1:0;
-    }
-    return ret;
-}
-
-
-
-
 
 /////////////////////////////// Event handlers ///////////////////////////////
 
@@ -82,30 +66,10 @@ void MainWindow::on_preprocButton_released()
 
 }
 
-void MainWindow::on_extWordButton_released()
-{
-
-}
-
-void MainWindow::on_extCharButton_released()
-{
-
-}
-
-void MainWindow::on_comboBox_currentIndexChanged(int index)
-{
-    ui->groupBox->setDisabled(index!=0);
-}
-
 void MainWindow::on_OCRButton_released()
 {
     OCR* ocr_tool = OCRFactory::Get()->createOCR((OCR::ocr_type_t)ui->comboBox->currentIndex());
     delete ocr_tool;
-}
-
-void MainWindow::on_postprocButton_released()
-{
-
 }
 
 void MainWindow::on_TTSButton_released()

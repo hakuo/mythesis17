@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "ocr/imageprocessing.h"
+#include "OCR/ImageProcessing.h"
 #include "common.h"
 
 namespace Ui {
@@ -22,15 +22,7 @@ private slots:
 
     void on_preprocButton_released();
 
-    void on_extWordButton_released();
-
-    void on_extCharButton_released();
-
-    void on_comboBox_currentIndexChanged(int index);
-
     void on_OCRButton_released();
-
-    void on_postprocButton_released();
 
     void on_TTSButton_released();
 

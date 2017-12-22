@@ -22,7 +22,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tabAuto">
        <attribute name="title">
@@ -115,37 +115,11 @@
          </rect>
         </property>
        </widget>
-       <widget class="QPushButton" name="extWordButton">
-        <property name="geometry">
-         <rect>
-          <x>510</x>
-          <y>90</y>
-          <width>101</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Extract Word</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="extCharButton">
-        <property name="geometry">
-         <rect>
-          <x>510</x>
-          <y>130</y>
-          <width>101</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Extract Char</string>
-        </property>
-       </widget>
        <widget class="QPushButton" name="preprocButton">
         <property name="geometry">
          <rect>
           <x>510</x>
-          <y>50</y>
+          <y>60</y>
           <width>101</width>
           <height>25</height>
          </rect>
@@ -154,75 +128,23 @@
          <string>Preprocess</string>
         </property>
        </widget>
-       <widget class="QGroupBox" name="groupBox">
-        <property name="geometry">
-         <rect>
-          <x>500</x>
-          <y>220</y>
-          <width>120</width>
-          <height>151</height>
-         </rect>
-        </property>
-        <property name="title">
-         <string>Feature</string>
-        </property>
-        <widget class="QCheckBox" name="zoningCheckBox">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>20</y>
-           <width>92</width>
-           <height>23</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Zoning</string>
-         </property>
-        </widget>
-        <widget class="QCheckBox" name="distanceCheckBox">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>40</y>
-           <width>92</width>
-           <height>23</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Distance</string>
-         </property>
-        </widget>
-        <widget class="QCheckBox" name="crossingCheckBox">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>60</y>
-           <width>92</width>
-           <height>23</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Crossing</string>
-         </property>
-        </widget>
-       </widget>
        <widget class="QComboBox" name="comboBox">
         <property name="geometry">
          <rect>
           <x>510</x>
-          <y>170</y>
+          <y>130</y>
           <width>101</width>
           <height>25</height>
          </rect>
         </property>
         <item>
          <property name="text">
-          <string>BKOCR</string>
+          <string>Tesseract</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Tesseract</string>
+          <string>DNN</string>
          </property>
         </item>
         <item>
@@ -235,7 +157,7 @@
         <property name="geometry">
          <rect>
           <x>510</x>
-          <y>390</y>
+          <y>220</y>
           <width>101</width>
           <height>25</height>
          </rect>
@@ -248,7 +170,7 @@
         <property name="geometry">
          <rect>
           <x>510</x>
-          <y>470</y>
+          <y>290</y>
           <width>101</width>
           <height>25</height>
          </rect>
@@ -261,26 +183,13 @@
         <property name="geometry">
          <rect>
           <x>510</x>
-          <y>510</y>
+          <y>360</y>
           <width>101</width>
           <height>25</height>
          </rect>
         </property>
         <property name="text">
          <string>Auto</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="postprocButton">
-        <property name="geometry">
-         <rect>
-          <x>510</x>
-          <y>430</y>
-          <width>101</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Postprocess</string>
         </property>
        </widget>
       </widget>

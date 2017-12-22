@@ -1,4 +1,4 @@
-#include "tcpsocket.h"
+#include "TcpUtils.h"
 #include <stdio.h>
 #include <iostream>
 #include <sys/types.h>
@@ -10,7 +10,7 @@
 #include <boost/crc.hpp>
 #include <fstream>
 
-namespace TcpSocket {
+namespace TcpUtils {
 #define MAX_NUM 9999
 
 uint8_t* allocResponse(request_t cmd, response_t error_code, uint8_t *data, uint16_t len)
@@ -113,7 +113,7 @@ uint32_t calcFileCRC(const std::string filepath)
 bool verifyDownloadPackage(file_t file)
 {
     struct stat st;
-    if(stat(file.filepath, &st) < 0)
+    if(stat(file.filepath.c_str(), &st) < 0)
     {
         std::cout << "Cann't stat file " << file.filepath << std::endl;
         return false;
