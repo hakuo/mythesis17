@@ -5,7 +5,7 @@
 #include <errno.h>
 #include <stdint.h>
 
-using namespace std;
+//using namespace std;
 
 typedef union {
     struct

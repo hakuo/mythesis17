@@ -28,6 +28,8 @@ private slots:
 
     void on_autoButton_released();
 
+    void on_dataBrowseButton_released();
+
 private:
     Ui::MainWindow *ui;
     ImageProcessing mImgProc;

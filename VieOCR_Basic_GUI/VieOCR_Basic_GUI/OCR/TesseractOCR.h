@@ -7,12 +7,15 @@ class TesseractOCR: public OCR
 {
 public:
     TesseractOCR();
-    ~TesseractOCR();
+    virtual ~TesseractOCR();
     static OCR* Create()
     {
         return new TesseractOCR();
     }
-    bool init();
+
+    virtual void run();
+private:
+
 };
 
 #endif // TESSERACTOCR_H

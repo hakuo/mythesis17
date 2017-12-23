@@ -34,8 +34,8 @@ private:
     static TaskThread* m_me;
     static void* _thread_(void *arg);
     void ThreadLoop();
-    queue<message_t> txQueue;
-    queue<message_t> rxQueue;
+    std::queue<message_t> txQueue;
+    std::queue<message_t> rxQueue;
 };
 
 #endif // TASKTHREAD_H

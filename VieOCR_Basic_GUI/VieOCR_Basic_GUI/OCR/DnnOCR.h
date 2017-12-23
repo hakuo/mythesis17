@@ -7,11 +7,12 @@ class DnnOCR: public OCR
 {
 public:
     DnnOCR();
-    ~DnnOCR();
+    virtual ~DnnOCR();
     static OCR* Create()
     {
         return new DnnOCR();
     }
+    virtual void run();
 };
 
 #endif // DnnOCR_H

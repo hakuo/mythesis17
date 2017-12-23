@@ -4,6 +4,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "OCR/OCR_Factory.h"
+#include "TTS/TTS.h"
+#include "TCP/TcpUtils/TcpUtils.h"
 
 /////////////////////////////// Utilities /////////////////////////////////////
 namespace Utility {
@@ -60,6 +62,11 @@ void MainWindow::on_imgBrowseButton_released()
 
 }
 
+void MainWindow::on_dataBrowseButton_released()
+{
+    QString foldername = QFileDialog::getExistingDirectory(this, "Open TTS Database", QDir::currentPath());
+    if(!foldername.isNull()) { ui->lineDataPath->setText(foldername); }
+}
 
 void MainWindow::on_preprocButton_released()
 {
@@ -69,11 +76,26 @@ void MainWindow::on_preprocButton_released()
 void MainWindow::on_OCRButton_released()
 {
     OCR* ocr_tool = OCRFactory::Get()->createOCR((OCR::ocr_type_t)ui->comboBox->currentIndex());
+    ocr_tool->setInput(ui->lineImgPath->text().toStdString(), mImgProc.mImageGray);
+    ui->statusBar->showMessage("OCR processing...");
+    ocr_tool->run();
+    ui->statusBar->showMessage("OCR done !");
+    std::string outStr;
+    ocr_tool->readTxtToStr(ocr_tool->getOutput(), outStr);
+    ui->textOutput->setText(QString::fromStdString(outStr));
     delete ocr_tool;
 }
 
 void MainWindow::on_TTSButton_released()
 {
+    // set environment path first
+    std::string database = ui->lineDataPath->text().toStdString();
+    if((database == "") || (TcpUtils::checkDirExist(database.c_str()) == false))
+    {
+        QMessageBox::critical(this, "Error", "Invalid database path");
+        return;
+    }
+    setenv("TTS_SYS_ROOT", database.c_str(), 1);
 
 }
 
@@ -81,3 +103,5 @@ void MainWindow::on_autoButton_released()
 {
 
 }
+
+

@@ -16,7 +16,7 @@ public:
     }
 
 private:
-    map<OCR::ocr_type_t, CreateOCRToolFP> mOCRMap;   // key: (ocr_type) BK_OCR, Tesseract, ...
+    std::map<OCR::ocr_type_t, CreateOCRToolFP> mOCRMap;   // key: (ocr_type) BK_OCR, Tesseract, ...
                                                      // value: constructor of each type
     void registerOCRTool(OCR::ocr_type_t ocr_type, CreateOCRToolFP pfnCreate);
 };
