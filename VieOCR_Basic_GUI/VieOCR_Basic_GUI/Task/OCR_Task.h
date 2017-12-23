@@ -12,13 +12,9 @@
 
 #include "TaskThread.h"
 #include "common.h"
-#include <opencv2/opencv.hpp>
+#include "OCR/OCR.h"
 
-using namespace cv;
 
-#ifdef UT_TEST
-#define private public
-#endif
 
 class OCRTask : public TaskThread
 {
