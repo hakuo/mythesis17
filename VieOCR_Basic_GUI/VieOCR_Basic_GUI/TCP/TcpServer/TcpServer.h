@@ -14,7 +14,7 @@ public:
 
     int mServerSock;
     bool mTerminate;
-    bool initSock(int portno, int listen_num);
+    bool initSock(uint16_t portno, uint8_t listen_num);
     void run();
     void stop();
 
@@ -22,10 +22,10 @@ private:
     TcpUtils::request_t mState;
     TcpUtils::file_t mFile;
     void closeSock(int &sockfd);
-    uint8_t* handleMessage(const TcpUtils::tcp_pkg_t* package);
-    uint8_t* startDownload(const uint8_t* data);
-    uint8_t* transferFile(const uint8_t* data);
-    uint8_t* endDownload();
+    void handleMessage(const TcpUtils::tcp_pkg_t* rxPackge, TcpUtils::tcp_pkg_t *txPackge);
+    void startDownload(const uint8_t* data, TcpUtils::tcp_pkg_t *txPackage);
+    void transferFile(const uint8_t* data, TcpUtils::tcp_pkg_t *txPackage);
+    void endDownload(TcpUtils::tcp_pkg_t *txPackage);
     virtual void notifyFileAvailable(const std::string filepath);
 };
 

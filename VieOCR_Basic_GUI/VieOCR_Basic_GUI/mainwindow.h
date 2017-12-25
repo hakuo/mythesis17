@@ -20,8 +20,6 @@ public:
 private slots:
     void on_imgBrowseButton_released();
 
-    void on_preprocButton_released();
-
     void on_OCRButton_released();
 
     void on_TTSButton_released();

@@ -1,7 +1,9 @@
 #include "OCR.h"
 #include <fstream>
-#include "TCP/TcpUtils/TcpUtils.h"
 #include <stdio.h>
+#include <hunspell/hunspell.hxx>
+#include "TCP/TcpUtils/TcpUtils.h"
+#include <QDebug>
 
 OCR::OCR()
 {
@@ -24,11 +26,6 @@ std::string OCR::getOutput()
 {
     return mTxtOutput;
 }
-
-//void OCR::run()
-//{
-
-//}
 
 bool OCR::writeStrToTxt(const std::string filepath, std::string src)
 {
@@ -69,4 +66,31 @@ void OCR::genOutputPath()
     mTxtOutput += mFileName;
     mTxtOutput += ".txt";
     remove(mTxtOutput.c_str());
+}
+
+std::string OCR::correct(std::string word)
+{
+    Hunspell hun ("/usr/share/hunspell/vi_VN.aff", "/usr/share/hunspell/vi_VN.dic");
+    std::vector<std::string> suggestion;
+    if(hun.spell(word, NULL, NULL) == 0)
+    {
+        qDebug() << "Spelling Error: " << word.c_str();
+        suggestion = hun.suggest(word.c_str());
+        if(suggestion.size() == 0)
+        {
+            qDebug() << "Can't find any suggestion for this word " << word.c_str();
+            // return word
+        }
+        else
+        {
+            qDebug() << "Autocorrect: " << word.c_str() << " to " << suggestion[0].c_str();
+            return suggestion[0];
+        }
+    }
+    else
+    {
+        qDebug() << "Correct spelling" << word.c_str();
+        // return word
+    }
+    return word;
 }

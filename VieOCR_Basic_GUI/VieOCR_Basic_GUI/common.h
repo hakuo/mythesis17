@@ -1,6 +1,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include <iostream>
+#include <QDebug>
 #include <string>
 #include <errno.h>
 #include <stdint.h>

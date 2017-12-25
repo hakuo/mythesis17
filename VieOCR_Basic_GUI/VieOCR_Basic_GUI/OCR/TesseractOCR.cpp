@@ -38,6 +38,11 @@ void TesseractOCR::run()
     vector<float> confidences;
 
     ocr->run(mImgInput, output, &boxes, &words, &confidences, OCR_LEVEL_WORD);
+    // Post processing
+    for(uint16_t i=0; i<words.size(); ++i)
+    {
+        words[i] = correct(words[i]);
+    }
     genOutputPath();
     for(uint16_t i=0; i<words.size(); ++i)
     {

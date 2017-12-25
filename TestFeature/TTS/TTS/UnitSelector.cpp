@@ -323,8 +323,8 @@ void UnitSelector::createWavFile(std::string path){
             DEBUG_INFO("Cannot allocate buffer size = %d", segment_size);
             continue;
         }
-        std::ifstream inputWav((TTS_SYS_ROOT + TTS_DATABASE_PATH + std::string(itu->segment.filename) + ".wav").c_str(),
-                std::ifstream::in);
+        std::string inputWavName = TTS_SYS_ROOT + TTS_DATABASE_PATH + std::string(itu->segment.filename) + ".wav";
+        std::ifstream inputWav(inputWavName, std::ifstream::in);
         if(inputWav.is_open()){
             inputWav.seekg(itu->segment.begin*32 + 44);
             inputWav.read(buffer, segment_size);

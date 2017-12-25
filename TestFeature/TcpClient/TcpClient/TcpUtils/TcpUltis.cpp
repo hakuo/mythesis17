@@ -8,22 +8,40 @@
 #include <sstream>
 #include <string.h>
 #include <boost/crc.hpp>
+#include <boost/algorithm/string.hpp>
 #include <fstream>
 
 namespace TcpUtils {
 #define MAX_NUM 9999
 
-uint8_t* allocResponse(request_t cmd, response_t error_code, uint8_t *data, uint16_t len)
+tcp_pkg_t *makeTxPackage(request_t cmd, response_t error_code, uint8_t *data, uint16_t len)
 {
-    tcp_pkg_t* buffer = (tcp_pkg_t*)calloc(TCP_BUFFER_SIZE, 1);
-    buffer->header.cmd = cmd;
-    buffer->header.error_code = error_code;
-    if((data != NULL) && (len != 0))
+    tcp_pkg_t *pkg = new tcp_pkg_t;
+    if(pkg)
     {
-        memcpy(buffer->data, data, len);
+        memset(pkg, 0, TCP_BUFFER_SIZE);
+        pkg->header.cmd = cmd;
+        pkg->header.error_code = error_code;
+        if((data != NULL) && (len != 0))
+        {
+            memcpy(pkg->data, data, len);
+        }
     }
-    return (uint8_t*)buffer;
+
+    return pkg;
 }
+
+//uint8_t* allocResponse(request_t cmd, response_t error_code, uint8_t *data, uint16_t len)
+//{
+//    tcp_pkg_t* buffer = (tcp_pkg_t*)calloc(TCP_BUFFER_SIZE, 1);
+//    buffer->header.cmd = cmd;
+//    buffer->header.error_code = error_code;
+//    if((data != NULL) && (len != 0))
+//    {
+//        memcpy(buffer->data, data, len);
+//    }
+//    return (uint8_t*)buffer;
+//}
 
 bool checkAvailableToWrite(file_t file)
 {
@@ -86,6 +104,23 @@ bool writeFileToMemory(const std::string filepath, const uint8_t *data, uint16_t
         }
     }
     return ret;
+}
+
+bool checkFileAvailable(const std::string filepath, size_t *szLen)
+{
+    struct stat buffer;
+    if(stat(filepath.c_str(), &buffer) == 0)
+    {
+        if(szLen != NULL)
+        {
+            *szLen = buffer.st_size;
+        }
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 uint32_t calcFileCRC(const std::string filepath)
@@ -159,13 +194,14 @@ bool genFilePath(file_t &file, const char* dir)
     std::string ext;
     if(createDirectory(dir))
     {
-        ext = (file.header.type == PNG_FILE)?".png":(file.header.type == JPG_FILE)?".jpg":(file.header.type == TXT_FILE)?".txt":"";
+        ext = genFileExt(file.header.type);
         while(num <= MAX_NUM)
         {
             file.filepath = dir;
             file.filepath += ZeroPadNumber(num);
             file.filepath += ext;
-            if(access(file.filepath.c_str(), F_OK) == -1)
+            //if(access(file.filepath.c_str(), F_OK) == -1)
+            if(!checkFileAvailable(file.filepath))
             {
                 // file doesn't exist
                 ret = true;
@@ -203,6 +239,67 @@ bool initEnv()
 {
     return (createDirectory(DOWNLOAD_FOLDER) && createDirectory(UPLOAD_FOLDER));
 }
+
+std::string getFileExt(const std::string filepath)
+{
+    size_t i = filepath.rfind('.', filepath.length());
+    if(i != std::string::npos)
+    {
+        return(filepath.substr(i+1, filepath.length() - i));
+    }
+    return "";
+}
+
+file_type_t getFileType(const std::string filepath)
+{
+    file_type_t ret = UNDEFINED;
+    std::string fExt = getFileExt(filepath);
+    if(compareStringInsensitive(fExt, "png"))
+    {
+        ret = TcpUtils::PNG_FILE;
+    }
+    if(compareStringInsensitive(fExt, "jpg"))
+    {
+        ret = TcpUtils::JPG_FILE;
+    }
+    if(compareStringInsensitive(fExt, "txt"))
+    {
+        ret = TcpUtils::TXT_FILE;
+    }
+    if(compareStringInsensitive(fExt, "wav"))
+    {
+        ret = TcpUtils::WAV_FILE;
+    }
+    return ret;
+}
+
+std::string genFileExt(file_type_t filetype)
+{
+    std::string ret = "";
+    switch (filetype) {
+    case PNG_FILE:
+        ret = ".png";
+        break;
+    case JPG_FILE:
+        ret = ".jpg";
+        break;
+    case TXT_FILE:
+        ret = ".txt";
+        break;
+    case WAV_FILE:
+        ret = ".wav";
+        break;
+    default:
+        break;
+    }
+    return ret;
+}
+
+bool compareStringInsensitive(const std::string str1, const std::string str2)
+{
+    return boost::iequals(str1, str2);
+}
+
 
 }
 

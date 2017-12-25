@@ -13,32 +13,23 @@
 #include "TaskThread.h"
 #include "common.h"
 #include "OCR/OCR.h"
-
-
+#include "OCR/ImageProcessing.h"
 
 class OCRTask : public TaskThread
 {
 public:
     OCRTask();
-    ~OCRTask();
+    OCRTask(OCR::ocr_type_t ocr_type);
+    virtual ~OCRTask();
 
 private:
     virtual bool readyToRun();
     virtual void TaskHandler();
 
-    // Preprocessing image functions
-//    bool readImage(Mat& image, const string path);
-//    bool showImage();
-//    bool cvtRGB2Bin();
-//    bool extWord();
-//    bool extChar();
+    OCR* mOCRinstance;
+    ImageProcessing* mImgProc;
 
-//    // Training OCR functions
-//    void train();
-//    void predict();
 
-    // Postprocessing functions
-    /* T.B.D */
 
 };
 

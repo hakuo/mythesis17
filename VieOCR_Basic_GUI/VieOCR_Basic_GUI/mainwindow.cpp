@@ -68,11 +68,6 @@ void MainWindow::on_dataBrowseButton_released()
     if(!foldername.isNull()) { ui->lineDataPath->setText(foldername); }
 }
 
-void MainWindow::on_preprocButton_released()
-{
-
-}
-
 void MainWindow::on_OCRButton_released()
 {
     OCR* ocr_tool = OCRFactory::Get()->createOCR((OCR::ocr_type_t)ui->comboBox->currentIndex());

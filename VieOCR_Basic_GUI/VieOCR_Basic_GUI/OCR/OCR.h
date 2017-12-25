@@ -25,6 +25,7 @@ protected:
     std::string mFileName;
     std::string mTxtOutput;
     void genOutputPath();
+    std::string correct(std::string word);
 };
 
 // create function pointer

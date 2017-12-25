@@ -12,9 +12,6 @@
 #include "TaskThread.h"
 #include "common.h"
 
-#ifdef UT_TEST
-#define private public
-#endif
 class TTSTask : public TaskThread
 {
 public:
