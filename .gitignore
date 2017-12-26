@@ -1,3 +1,4 @@
+*.user
 *.cproject
 *.project
 *Debug/
@@ -5,6 +6,9 @@
 # Image
 *.png
 *.jpg
+*.wav
+*.pk
+*.dat
 
 # Qt build folder
 *build-*
