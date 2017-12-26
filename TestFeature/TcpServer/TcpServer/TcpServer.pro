@@ -3,12 +3,11 @@ CONFIG += console c++11
 CONFIG -= app_bundle
 CONFIG -= qt
 
-SOURCES += main.cpp \
-    tcpserver.cpp \
-    tcpsocket.cpp
+SOURCES += \
+    TcpServer/TcpServer.cpp \
+    TcpUtils/TcpUtils.cpp \
+    main.cpp
 
 HEADERS += \
-    tcpserver.h \
-    tcpsocket.h
-
-INCLUDEPATH += /home/cuongdh8/workspace/lib/boost_1_66_0
+    TcpServer/TcpServer.h \
+    TcpUtils/TcpUtils.h

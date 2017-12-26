@@ -87,8 +87,8 @@ LIBS += -lasound -lglib-2.0
 LIBS += -lrt        # Message Queue
 LIBS += -lhunspell-1.6
 
+
 INCLUDEPATH += /usr/include/glib-2.0/ \
     /usr/lib/x86_64-linux-gnu/glib-2.0/include/ \
-    /home/cuongdh8/workspace/lib/boost_1_66_0 \
 
 DEFINES += HAVE_TESSERACT

@@ -10,14 +10,15 @@
 #include <boost/crc.hpp>
 #include <boost/algorithm/string.hpp>
 #include <fstream>
+#include <sys/socket.h>
+#include <sys/poll.h>
 
 namespace TcpUtils {
 #define MAX_NUM 9999
 
-tcp_pkg_t *makeTxPackage(request_t cmd, response_t error_code, uint8_t *data, uint16_t len)
+void makeTxPackage(tcp_pkg_t *pkg, request_t cmd, response_t error_code, uint8_t *data, uint16_t len)
 {
-    tcp_pkg_t *pkg = new tcp_pkg_t;
-    if(pkg)
+    if(pkg != NULL)
     {
         memset(pkg, 0, TCP_BUFFER_SIZE);
         pkg->header.cmd = cmd;
@@ -27,8 +28,6 @@ tcp_pkg_t *makeTxPackage(request_t cmd, response_t error_code, uint8_t *data, ui
             memcpy(pkg->data, data, len);
         }
     }
-
-    return pkg;
 }
 
 //uint8_t* allocResponse(request_t cmd, response_t error_code, uint8_t *data, uint16_t len)
@@ -300,6 +299,99 @@ bool compareStringInsensitive(const std::string str1, const std::string str2)
     return boost::iequals(str1, str2);
 }
 
+void freePointer(tcp_pkg_t *pointer)
+{
+    if(pointer != NULL)
+    {
+        delete pointer;
+        pointer = NULL;
+    }
+}
+
+#define TIMEOUT 1000 // 1 sec
+#define MAX_TIMEOUT_EVENT 5
+
+bool recvSock(int sockfd, void *buffer, ssize_t *szLen)
+{
+    if(sockfd < 0 || buffer == NULL || szLen == NULL)
+    {
+        std::cout << "recvSock() input invalid" << std::endl;
+        return false;
+    }
+
+    int rc;
+    struct pollfd fd;
+    fd.fd = sockfd;
+    fd.events = POLLIN;
+    fd.revents = 0;
+
+    int count = 0;
+    do
+    {
+        rc = poll(&fd, 1, TIMEOUT);
+        if(rc < 0)
+        {
+            // error
+            std::cout << "poll() error" << std::endl;
+            break;
+        }
+
+        if(rc > 0)
+        {
+            *szLen = recv(sockfd, buffer, TCP_BUFFER_SIZE, 0);
+            return true;
+        }
+        // timeout
+        count++;
+    }while(count < MAX_TIMEOUT_EVENT);
+    return false;
+
+}
+
+bool sendSock(int sockfd, void *buffer, size_t szLen)
+{
+    if(sockfd < 0 || buffer == NULL || szLen == 0)
+    {
+        std::cout << "Invalid package to send" << std::endl;
+        return false;
+    }
+    int rc;
+    rc = send(sockfd, buffer, szLen, 0);
+    return (rc < 0) ? false : true;
+}
+
+bool sendPackage(int sockfd, tcp_pkg_t *txBuffer, tcp_pkg_t *rxBuffer, ssize_t *szRecv)
+{
+    while(1)
+    {
+        if(sendSock(sockfd, txBuffer, TCP_BUFFER_SIZE) == false)
+        {
+            return false;
+        }
+
+        if(recvSock(sockfd, rxBuffer, szRecv) == false)
+        {
+            return false;
+        }
+
+        if(rxBuffer->header.error_code == NEGATIVE_RESPONSE_NOTSEND)
+        {
+            return false;
+        }
+
+        if(rxBuffer->header.error_code == NEGATIVE_RESPONSE_RESEND_ALL)
+        {
+            return false;
+        }
+
+        if(rxBuffer->header.error_code == POSITIVE_RESPONSE)
+        {
+            // break to continue next type
+            return true;
+        }
+        // remain only resend case
+    }
+}
 
 }
 

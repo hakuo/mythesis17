@@ -1,6 +1,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QDebug>
+#include <locale.h>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "OCR/OCR_Factory.h"
@@ -12,6 +13,7 @@ namespace Utility {
 void showImage(QLabel *imgWin, cv::Mat img)
 {
     //return imgWin->setPixmap(QPixmap::fromImage(QImage(img.data, img.cols, img.rows, img.step, QImage::Format_RGB888)).scaled(imgWin->width(), imgWin->height(), Qt::KeepAspectRatio));
+    setlocale (LC_ALL,"en_US.UTF-8");
     QImage qImg;
     cv::Mat RGBImg;
     if(img.channels()==3)
@@ -49,7 +51,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_imgBrowseButton_released()
 {
-    QString filename = QFileDialog::getOpenFileName(this, "Open File", "/home/cuongdh8", "Image File (*.png *.jpg);; All file (*.*)");
+    QString filename = QFileDialog::getOpenFileName(this, "Open File", "/home/cuongdh8", "Image File (*.png *.jpg *.PNG *.JPG);; All file (*.*)");
     if(!filename.isNull() && mImgProc.loadImage(filename.toStdString()))
     {
         ui->lineImgPath->setText(filename);
@@ -64,12 +66,13 @@ void MainWindow::on_imgBrowseButton_released()
 
 void MainWindow::on_dataBrowseButton_released()
 {
-    QString foldername = QFileDialog::getExistingDirectory(this, "Open TTS Database", QDir::currentPath());
+    QString foldername = QFileDialog::getExistingDirectory(this, "Open TTS Database", "../");
     if(!foldername.isNull()) { ui->lineDataPath->setText(foldername); }
 }
 
 void MainWindow::on_OCRButton_released()
 {
+    setenv("TESSDATA_PREFIX", "/usr/share/tesseract-ocr/tessdata", 1);
     OCR* ocr_tool = OCRFactory::Get()->createOCR((OCR::ocr_type_t)ui->comboBox->currentIndex());
     ocr_tool->setInput(ui->lineImgPath->text().toStdString(), mImgProc.mImageGray);
     ui->statusBar->showMessage("OCR processing...");
@@ -91,6 +94,8 @@ void MainWindow::on_TTSButton_released()
         return;
     }
     setenv("TTS_SYS_ROOT", database.c_str(), 1);
+    iHearTech::TTS tmp;
+    tmp.sayText(ui->textOutput->toPlainText().toStdString().c_str());
 
 }
 
