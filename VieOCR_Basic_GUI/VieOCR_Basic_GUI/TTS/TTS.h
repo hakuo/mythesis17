@@ -13,7 +13,7 @@
 #include "TTS_Utils/debug.h"
 #include "TTS_Utils/TextObjectTTS.h"
 #include "TTS_Utils/UnitSelector.h"
-
+#include "common.h"
 #define TTS_OUTPUT_PATH "/database/tts"
 
 namespace iHearTech {

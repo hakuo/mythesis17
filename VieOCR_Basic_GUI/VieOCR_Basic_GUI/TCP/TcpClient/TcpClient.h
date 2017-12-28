@@ -13,6 +13,7 @@ public:
     bool connectToServer(const char* serv_addr_str, uint16_t portno);
     bool sendFile(const std::string filepath);
     void closeSock(int &sockfd);
+    void closeSock();
 private:
     int mClientSock;
 

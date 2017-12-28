@@ -11,6 +11,7 @@
 
 OCR::OCR()
 {
+    resetPath();
     this->OCR_SYS_ROOT = std::string(getenv("TOOL_SYS_ROOT"));
     std::string envPath = OCR_SYS_ROOT + TESSDATA_DIR;
     setenv("TESSDATA_PREFIX", envPath.c_str(), 1);
@@ -22,51 +23,53 @@ OCR::~OCR()
 
 }
 
-bool OCR::loadImage(const std::string imagePath)
+std::string OCR::createTxt(std::string inputPath)
 {
-    return(loadImage(mImgInput,imagePath));
+    std::string ret = "";
+    if(this->loadImage(mImgInput, mInputPath, inputPath))   // TODO: loadImage, preprocessing
+    {
+        this->genTxtPath(mInputPath, mTxtOutput);
+        this->run();
+        ret = this->getOutput();
+        this->resetPath();
+    }
+    return ret;
 }
 
-bool OCR::loadImage(cv::Mat &image, const std::string imagePath)
+bool OCR::loadImage(cv::Mat &image, std::string &storeStr,  const std::string imagePath)
 {
     bool ret;
-    image = cv::imread(imagePath, CV_LOAD_IMAGE_GRAYSCALE);
-    if(image.data == NULL)
+    cv::Mat tmp = cv::imread(imagePath, CV_LOAD_IMAGE_GRAYSCALE);
+    if(tmp.data == NULL)
     {
         ret = false;
     }
     else
     {
-        mImgInput = image.clone();
-        mFileName = basename(imagePath.c_str());
+        image = tmp.clone();
+        storeStr = imagePath;
         ret = true;
     }
     return ret;
 }
 
-void cvtGray2Bin(cv::Mat& outImage, cv::Mat inImage)
-{
-
-}
-
-void skewCorrector(cv::Mat& outImage, cv::Mat inImage)
-{
-
-}
-
-void extWords(std::vector<cv::Mat>& wordArray, cv::Mat image)
-{
-
-}
-
-void extChars(std::vector<cv::Mat>& charArray, cv::Mat word)
-{
-
-}
-
-//void OCR::setInput(const std::string filepath, cv::Mat image)
+//void cvtGray2Bin(cv::Mat& outImage, cv::Mat inImage)
 //{
-//    mImgInput = image;
+
+//}
+
+//void skewCorrector(cv::Mat& outImage, cv::Mat inImage)
+//{
+
+//}
+
+//void extWords(std::vector<cv::Mat>& wordArray, cv::Mat image)
+//{
+
+//}
+
+//void extChars(std::vector<cv::Mat>& charArray, cv::Mat word)
+//{
 
 //}
 
@@ -107,11 +110,12 @@ bool OCR::readTxtToStr(const std::string filepath, std::string &des)
     return false;
 }
 
-// Input: Path to input file (*.img)
+// Input: Path to input file (*.jpg)
 // Output: Path to output file (*.txt)
 // Generate output filname with the same name
 // IMG_0001.jpg => IMG_0001.txt
-std::string OCR::genTxtPath(std::string filepath)
+
+void OCR::genTxtPath(std::string &txtOutStr, std::string filepath)
 {
     std::string outDir = OCR_SYS_ROOT + TMP_PATH;
     std::string filename = basename(filepath.c_str());
@@ -119,9 +123,15 @@ std::string OCR::genTxtPath(std::string filepath)
     {
         TcpUtils::createDirectory(outDir.c_str());
     }
-    std::string outFile = outDir + TcpUtils::removeExt(filename) + ".txt";
-    remove(outFile.c_str());
-    return outFile;
+    txtOutStr = outDir + TcpUtils::removeExt(filename) + ".txt";
+    remove(txtOutStr.c_str());
+}
+
+void OCR::resetPath()
+{
+    mInputPath = "";
+    mTxtOutput = "";
+    mImgInput.release();
 }
 
 std::string OCR::correct(std::string word)

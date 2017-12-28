@@ -158,6 +158,10 @@ void TcpClient::closeSock(int &sockfd)
 }
 
 
+void TcpClient::closeSock()
+{
+    closeSock(mClientSock);
+}
 
 
 

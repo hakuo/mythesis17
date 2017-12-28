@@ -52,8 +52,10 @@ typedef struct
 typedef struct
 {
     file_type_t type;
+    uint16_t recv_port;
     uint32_t size;
     uint32_t crc;
+
 }file_info_t;
 
 typedef struct
@@ -61,6 +63,13 @@ typedef struct
     file_info_t header;
     std::string filepath;
 }file_t;
+
+typedef struct
+{
+    uint16_t port;
+    std::string address;
+}sock_info_t;
+
 void makeTxPackage(tcp_pkg_t *pkg, request_t cmd, response_t error_code, uint8_t* data = NULL, uint16_t len = 0);
 //uint8_t* allocResponse(request_t cmd, response_t error_code, uint8_t* data = NULL, uint16_t len = 0);
 bool checkAvailableToWrite(file_t file);

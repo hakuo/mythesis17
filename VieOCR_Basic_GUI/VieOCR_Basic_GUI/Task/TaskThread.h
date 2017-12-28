@@ -3,7 +3,7 @@
 
 #include "common.h"
 #include <mqueue.h>
-
+#include "TCP/TcpUtils/TcpUtils.h"
 #define OCR_QUEUE "/OCR_Queue"  // mqueue of OCR Tool
 #define TTS_QUEUE "/TTS_Queue"  // mqueue of TTS Tool
 #define TCP_QUEUE "/TCP_Queue"  // mqueue of TCP Client
@@ -18,7 +18,7 @@ public:
 
     typedef struct
     {
-        uint8_t msg_id;
+        TcpUtils::sock_info_t msg_id;
         uint8_t data[256];
     } message_t;
 

@@ -97,7 +97,7 @@ std::string TTS::createWav(const char* file_path)
     size = ftell(pFile);
     fseek(pFile, 0, SEEK_SET);
     char *buffer = (char*)calloc(size, sizeof(char));
-    std::string wavOut = TTS_SYS_ROOT + TcpUtils::removeExt(file_path) + ".wav";
+    std::string wavOut = TTS_SYS_ROOT + TMP_PATH + TcpUtils::removeExt(file_path) + ".wav";
     if(buffer)
     {
         fread(buffer, sizeof(char), size, pFile);

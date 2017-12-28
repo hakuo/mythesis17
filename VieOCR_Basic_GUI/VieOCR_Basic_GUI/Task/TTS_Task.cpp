@@ -51,7 +51,7 @@ void TTSTask::TaskHandler()
     szLen = popMessageQueue(mQueue.rxQueue, (char *)buffer);
     if(szLen <= 0)
     {
-        //QDebug() << "OCRTask: Queue empty";
+        //QDebug() << "TTSTask: Queue empty";
         return;
     }
     memset(&rxMsg, 0, sizeof(message_t));
@@ -60,12 +60,9 @@ void TTSTask::TaskHandler()
     std::string wavOut = mTTSinstance->createWav((char *)rxMsg.data);
     if(wavOut == "")
     {
-        std::cout << "TTS failed" << std::endl;
-        return;
+        memset(&txMsg, 0, sizeof(message_t));
+        txMsg.msg_id = rxMsg.msg_id;
+        memcpy(txMsg.data, wavOut.c_str(), wavOut.length());
+        pushMessageQueue(mQueue.txQueue, (char *)&txMsg, sizeof(message_t));
     }
-    memset(&txMsg, 0, sizeof(message_t));
-    txMsg.msg_id = rxMsg.msg_id;
-    memcpy(txMsg.data, wavOut.c_str(), wavOut.length());
-
-    pushMessageQueue(mQueue.txQueue, (char *)&txMsg, sizeof(message_t));
 }

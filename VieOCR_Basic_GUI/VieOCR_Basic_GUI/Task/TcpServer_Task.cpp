@@ -2,6 +2,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <unistd.h>
 #include <sys/poll.h>
 #include <sys/ioctl.h>
@@ -14,12 +15,11 @@
 TcpServerTask::TcpServerTask()
 {
     mServerSock = -1;
-//    mTerminate = true;  // dont let TcpServer run at the beginning to avoid failure
     mQueue.txQueue = -1;
     mQueue.rxQueue = -1;
     mListenNum = -1;
     mListenPort = -1;
-    mQueue.txQueue = openTxQueue(OCR_QUEUE);
+
 }
 
 TcpServerTask::~TcpServerTask()
@@ -30,6 +30,8 @@ TcpServerTask::~TcpServerTask()
 
 bool TcpServerTask::readyToRun()
 {
+    sock_map.clear();
+    mQueue.txQueue = openTxQueue(OCR_QUEUE);
     mState = TcpUtils::START_DOWNLOAD;
     return (mListenNum != -1) && (mListenPort != -1)
             && (mQueue.txQueue != -1) && (initSock(mListenPort, mListenNum));
@@ -118,11 +120,11 @@ void TcpServerTask::closeSock(int &sockfd)
     sockfd = -1;
 }
 
-void TcpServerTask::handleMessage(const TcpUtils::tcp_pkg_t *rxPackge, TcpUtils::tcp_pkg_t *txPackge)
+void TcpServerTask::handleMessage(int sock, const TcpUtils::tcp_pkg_t *rxPackge, TcpUtils::tcp_pkg_t *txPackge)
 {
     switch (rxPackge->header.cmd) {
     case TcpUtils::START_DOWNLOAD:
-        startDownload(rxPackge->data, txPackge);
+        startDownload(sock, rxPackge->data, txPackge);
         break;
     case TcpUtils::TRANFER_FILE:
         transferFile(rxPackge->data, txPackge);
@@ -135,7 +137,7 @@ void TcpServerTask::handleMessage(const TcpUtils::tcp_pkg_t *rxPackge, TcpUtils:
     }
 }
 
-void TcpServerTask::startDownload(const uint8_t *data, TcpUtils::tcp_pkg_t *txPackage)
+void TcpServerTask::startDownload(int sock, const uint8_t *data, TcpUtils::tcp_pkg_t *txPackage)
 {
     TcpUtils::request_t cmd = TcpUtils::START_DOWNLOAD;
     TcpUtils::response_t error_code;
@@ -145,6 +147,7 @@ void TcpServerTask::startDownload(const uint8_t *data, TcpUtils::tcp_pkg_t *txPa
         std::cout << "file_type: " << (int)mFile.header.type << std::endl;
         std::cout << "file_size: " << (int)mFile.header.size << std::endl;
         std::cout << "file_crc: " << (int)mFile.header.crc << std::endl;
+        sock_map[sock].port = mFile.header.recv_port;
 
         TcpUtils::genFilePath(mFile, DOWNLOAD_FOLDER);
         if(TcpUtils::checkAvailableToWrite(mFile))
@@ -275,6 +278,11 @@ void TcpServerTask::TaskHandler()
     fds[0].fd = mServerSock;
     fds[0].events = POLLIN;
 
+    sockaddr_in cli_addr;
+    socklen_t addr_len;
+
+    TcpUtils::sock_info_t cli_info;
+
     while(!mThreadTerminate)
     {
         // Call poll() and wait 3 minutes for it complete.
@@ -318,7 +326,7 @@ void TcpServerTask::TaskHandler()
                 // socket before we loop back and call poll() again.
                 do
                 {
-                    client_sock = accept(mServerSock, NULL, NULL);
+                    client_sock = accept(mServerSock, (sockaddr *)&cli_addr, &addr_len);
                     if(client_sock < 0)
                     {
                         if(errno != EWOULDBLOCK)
@@ -331,7 +339,10 @@ void TcpServerTask::TaskHandler()
                     }
 
                     // Add new incoming connection to the pollfd structure
-                    std::cout << "New incoming connection - " << (int)client_sock << std::endl;
+                    cli_info.address = inet_ntoa(cli_addr.sin_addr);
+                    // TODO: Missing port
+                    std::cout << "New incoming connection - " << (int)client_sock << " - " << cli_info.address << std::endl;
+                    sock_map.insert(std::pair<int, TcpUtils::sock_info_t>(client_sock,cli_info));
                     fds[nfds].fd = client_sock;
                     fds[nfds].events = POLLIN;
                     ++nfds;
@@ -391,7 +402,7 @@ void TcpServerTask::TaskHandler()
                     }
 
                     // Handle data and send response to client
-                    handleMessage(rxBuffer, txBuffer);
+                    handleMessage(fds[i].fd, rxBuffer, txBuffer);
                     rc = -1;
                     if(txBuffer != NULL)
                     {

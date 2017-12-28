@@ -4,7 +4,6 @@
 OCRTask::OCRTask()
 {
     pOCRinstance = NULL;
-    mImgProc = NULL;
     mQueue.txQueue = -1;
     mQueue.rxQueue = -1;
 }
@@ -12,9 +11,7 @@ OCRTask::OCRTask()
 OCRTask::OCRTask(OCR::ocr_type_t ocr_type)
 {
     pOCRinstance = NULL;
-    mImgProc = NULL;
     pOCRinstance = OCRFactory::Get()->createOCR(ocr_type);
-    mImgProc = new ImageProcessing();
     mQueue.txQueue = openTxQueue(TTS_QUEUE);
     mQueue.rxQueue = openRxQueue(OCR_QUEUE);
 }
@@ -25,12 +22,6 @@ OCRTask::~OCRTask()
     {
         delete pOCRinstance;
         pOCRinstance = NULL;
-    }
-
-    if(mImgProc)
-    {
-        delete mImgProc;
-        mImgProc = NULL;
     }
     closeMessageQueue(mQueue.txQueue);
     closeMessageQueue(mQueue.rxQueue);
@@ -47,8 +38,7 @@ OCRTask::~OCRTask()
  */
 bool OCRTask::readyToRun()
 {
-    return ((pOCRinstance != NULL)  && (mImgProc != NULL)
-            &&  (mQueue.txQueue != -1) && (mQueue.rxQueue != -1));
+    return ((pOCRinstance != NULL) &&  (mQueue.txQueue != -1) && (mQueue.rxQueue != -1));
 }
 
 /*
@@ -74,26 +64,14 @@ void OCRTask::TaskHandler()
     memset(&rxMsg, 0, sizeof(message_t));
     memcpy(&rxMsg, buffer, sizeof(message_t));
 
-    // Step 2: preprocessing
-    if(!pOCRinstance->loadImage((char *)rxMsg.data))
+    std::string outTxt = pOCRinstance->createTxt((char *)rxMsg.data);
+    if(outTxt.length() > 0)
     {
-        qDebug() << " OCRTask::TaskHandler(): loadImage false";
-        return;
+        memset(&txMsg, 0, sizeof(message_t));
+        txMsg.msg_id = rxMsg.msg_id;
+        memcpy(txMsg.data, outTxt.c_str(), outTxt.length());
+        pushMessageQueue(mQueue.txQueue, (char *)&txMsg, sizeof(message_t));
     }
-
-    // Step 3: runOCR
-    // TODO setinput
-    //pOCRinstance->setInput((char *)rxMsg.data, mImgProc->mImageGray);
-    pOCRinstance->run();
-
-    // Step 6: push output to txQueue
-    std::string outTxt = pOCRinstance->getOutput();     //TODO: get output from postprocessing
-
-    memset(&txMsg, 0, sizeof(message_t));
-    txMsg.msg_id = rxMsg.msg_id;
-    memcpy(txMsg.data, outTxt.c_str(), outTxt.length());
-
-    pushMessageQueue(mQueue.txQueue, (char *)&txMsg, sizeof(message_t));
 }
 
 

@@ -27,10 +27,6 @@ private:
     virtual void TaskHandler();
 
     OCR* pOCRinstance;
-    ImageProcessing* mImgProc;
-
-
-
 };
 
 #endif // OCRTASK_H

@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 #include "TCP/TcpUtils/TcpUtils.h"
+#include <map>
 
 class TcpServer
 {
@@ -21,6 +22,7 @@ public:
 private:
     TcpUtils::request_t mState;
     TcpUtils::file_t mFile;
+    std::map<int, TcpUtils::sock_info_t> sock_map;
     void closeSock(int &sockfd);
     void handleMessage(const TcpUtils::tcp_pkg_t* rxPackge, TcpUtils::tcp_pkg_t *txPackge);
     void startDownload(const uint8_t* data, TcpUtils::tcp_pkg_t *txPackage);
