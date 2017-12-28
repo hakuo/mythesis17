@@ -3,7 +3,7 @@
 
 OCRTask::OCRTask()
 {
-    mOCRinstance = NULL;
+    pOCRinstance = NULL;
     mImgProc = NULL;
     mQueue.txQueue = -1;
     mQueue.rxQueue = -1;
@@ -11,9 +11,9 @@ OCRTask::OCRTask()
 
 OCRTask::OCRTask(OCR::ocr_type_t ocr_type)
 {
-    mOCRinstance = NULL;
+    pOCRinstance = NULL;
     mImgProc = NULL;
-    mOCRinstance = OCRFactory::Get()->createOCR(ocr_type);
+    pOCRinstance = OCRFactory::Get()->createOCR(ocr_type);
     mImgProc = new ImageProcessing();
     mQueue.txQueue = openTxQueue(TTS_QUEUE);
     mQueue.rxQueue = openRxQueue(OCR_QUEUE);
@@ -21,10 +21,10 @@ OCRTask::OCRTask(OCR::ocr_type_t ocr_type)
 
 OCRTask::~OCRTask()
 {
-    if(mOCRinstance)
+    if(pOCRinstance)
     {
-        delete mOCRinstance;
-        mOCRinstance = NULL;
+        delete pOCRinstance;
+        pOCRinstance = NULL;
     }
 
     if(mImgProc)
@@ -47,7 +47,7 @@ OCRTask::~OCRTask()
  */
 bool OCRTask::readyToRun()
 {
-    return ((mOCRinstance != NULL)  && (mImgProc != NULL)
+    return ((pOCRinstance != NULL)  && (mImgProc != NULL)
             &&  (mQueue.txQueue != -1) && (mQueue.rxQueue != -1));
 }
 
@@ -82,16 +82,11 @@ void OCRTask::TaskHandler()
     }
 
     // Step 3: runOCR
-    mOCRinstance->setInput((char *)rxMsg.data, mImgProc->mImageGray);
-    qDebug() << "OCR Processing";
-    mOCRinstance->run();
-    qDebug() << "OCR done";
-
-    // Step 3: Postprocessing
-
+    pOCRinstance->setInput((char *)rxMsg.data, mImgProc->mImageGray);
+    pOCRinstance->run();
 
     // Step 6: push output to txQueue
-    std::string outTxt = mOCRinstance->getOutput();     //TODO: get output from postprocessing
+    std::string outTxt = pOCRinstance->getOutput();     //TODO: get output from postprocessing
 
     memset(&txMsg, 0, sizeof(message_t));
     txMsg.msg_id = rxMsg.msg_id;

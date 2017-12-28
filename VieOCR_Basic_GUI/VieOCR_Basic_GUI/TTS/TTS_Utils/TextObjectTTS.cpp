@@ -119,9 +119,9 @@ bool TextObjectTTS::getTextFromUrl(std::string url){
     regex_t regex1, regex2;
     regmatch_t pmatch[3];
     this->inputStr.clear();
-    char *root = getenv("TTS_SYS_ROOT");
+    char *root = getenv("TOOL_SYS_ROOT");
     if(root == NULL){
-        printf("%sTextObjectTTS::getTextFromUrl: TTS_SYS_ROOT variable is not set!\n"
+        printf("%sTextObjectTTS::getTextFromUrl: TOOL_SYS_ROOT variable is not set!\n"
                 "Abort operation...%s\n",KRED,KNRM);
         return false;
     }
@@ -129,7 +129,7 @@ bool TextObjectTTS::getTextFromUrl(std::string url){
     if(TTS_SYS_ROOT.empty()){
         return false;
     }
-    system(("wget -O $TTS_SYS_ROOT/news.html " + url + " 2> /dev/null").c_str());
+    system(("wget -O $TOOL_SYS_ROOT/news.html " + url + " 2> /dev/null").c_str());
     std::ifstream ifs(TTS_SYS_ROOT + "news.html");
     std::ofstream ofs(TTS_SYS_ROOT + "news.txt");
     if(!ifs.is_open()){

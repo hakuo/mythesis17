@@ -81,6 +81,7 @@ void freePointer(tcp_pkg_t *pointer);
 bool recvSock(int sockfd, void* buffer, ssize_t* szLen);
 bool sendSock(int sockfd, void *buffer, size_t szLen);
 bool sendPackage(int sockfd, tcp_pkg_t *txBuffer, tcp_pkg_t *rxBuffer, ssize_t *szRecv);
+std::string removeExt(const std::string filename);
 
 } // namaspace TcpUtils
 

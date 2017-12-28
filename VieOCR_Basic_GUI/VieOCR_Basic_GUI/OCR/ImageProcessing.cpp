@@ -29,8 +29,6 @@ bool ImageProcessing::loadImage(Mat &image, const std::string imagePath)
     else
     {
         ret = true;
-//        imshow("xxx", image);
-//        waitKey();
     }
     return ret;
 }

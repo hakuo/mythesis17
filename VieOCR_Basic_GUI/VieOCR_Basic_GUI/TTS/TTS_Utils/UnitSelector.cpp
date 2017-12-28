@@ -28,9 +28,9 @@ UnitSelector::~UnitSelector(){
 
 int UnitSelector::initMaps(){
     DEBUG_INFO("Initializing hash maps...");
-    std::string TTS_SYS_ROOT(getenv("TTS_SYS_ROOT"));
+    std::string TTS_SYS_ROOT(getenv("TOOL_SYS_ROOT"));
     if(TTS_SYS_ROOT.empty()){
-        DEBUG_FATAL("TTS_SYS_ROOT is not set");
+        DEBUG_FATAL("TOOL_SYS_ROOT is not set");
         return 1;
     }
     std::ifstream ifsUnitId(TTS_SYS_ROOT + TTS_UNIT_ID_PATH);
@@ -81,7 +81,7 @@ int UnitSelector::initMaps(){
 }
 
 void UnitSelector::storeMaps(void){
-    std::string TTS_SYS_ROOT(getenv("TTS_SYS_ROOT"));
+    std::string TTS_SYS_ROOT(getenv("TOOL_SYS_ROOT"));
     FILE *fpUnitId = fopen((TTS_SYS_ROOT + TTS_UNIT_ID_DAT).c_str(),"w");
     // Serialize unit id map
     if(!fpUnitId){
@@ -122,9 +122,9 @@ void UnitSelector::storeMaps(void){
 
 int UnitSelector::restoreMaps(void){
     DEBUG_INFO("Restoring hash maps");
-    char *root = getenv("TTS_SYS_ROOT");
+    char *root = getenv("TOOL_SYS_ROOT");
     if(root == NULL){
-        printf("%sUnitSelector::restoreMaps: TTS_SYS_ROOT variable is not set\n"
+        printf("%sUnitSelector::restoreMaps: TOOL_SYS_ROOT variable is not set\n"
                 "Abort operation...%s\n",KRED,KNRM);
         return 1;
     }
@@ -300,9 +300,9 @@ bool UnitSelector::good(void){
 
 void UnitSelector::createWavFile(std::string path){
     DEBUG_INFO("Creating wave file %s", path.c_str());
-    std::string TTS_SYS_ROOT(getenv("TTS_SYS_ROOT"));
+    std::string TTS_SYS_ROOT(getenv("TOOL_SYS_ROOT"));
     if(TTS_SYS_ROOT.empty()){
-        DEBUG_FATAL("TTS_SYS_ROOT is not set");
+        DEBUG_FATAL("TOOL_SYS_ROOT is not set");
         return;
     }
     wav_header_t hwav;

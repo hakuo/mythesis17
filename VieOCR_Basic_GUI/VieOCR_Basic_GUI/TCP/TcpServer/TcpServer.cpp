@@ -15,7 +15,7 @@
 TcpServer::TcpServer()
 {
     mServerSock = -1;
-    mTerminate = false;
+    mTerminate = true;  // dont let TcpServer run at the beginning to avoid failure
 }
 
 TcpServer::~TcpServer()
@@ -79,6 +79,7 @@ bool TcpServer::initSock(uint16_t portno, uint8_t listen_num)
         }
         std::cout << "Initialize TcpServer successful" << std::endl;
         std::cout << "Listening port " << (int)portno << std::endl;
+        mTerminate = false; // ready to listen this port
         return true;
     }
     else
@@ -415,6 +416,7 @@ void TcpServer::notifyFileAvailable(const std::string filepath)
 {
     // TODO: pushTxQueue
     std::cout << "File  " << filepath << " download successful" << std::endl;
+
 }
 
 

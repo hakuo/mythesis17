@@ -12,7 +12,7 @@ TaskThread* TaskThread::m_me=nullptr;
 TaskThread::TaskThread()
 {
     mThreadID=0;
-    mThreadTerminate=false;
+    mThreadTerminate=true;
     mQueue.rxQueue = -1;
     mQueue.txQueue = -1;
 }
@@ -28,6 +28,7 @@ void TaskThread::run()
     if(readyToRun())
     {
         /* Create new thread to handle an infinity loop */
+        mThreadTerminate = false;       // run()
         if(pthread_create(&mThreadID, nullptr, TaskThread::_thread_, this) < 0)
         {
             perror("Create thread failed");
@@ -57,7 +58,6 @@ void TaskThread::ThreadLoop()
 {
     while(!mThreadTerminate)
     {
-
         TaskHandler();
     }
 }

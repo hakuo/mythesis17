@@ -21,15 +21,6 @@ TcpClient::~TcpClient()
     closeSock(mClientSock);
 }
 
-void TcpClient::closeSock(int &sockfd)
-{
-    if(sockfd >= 0)
-    {
-        close(sockfd);
-        sockfd = -1;
-    }
-}
-
 bool TcpClient::connectToServer(const char *serv_addr_str, uint16_t portno)
 {
     // check valid input
@@ -157,6 +148,14 @@ bool TcpClient::sendFile(const std::string filepath)
 }
 
 
+void TcpClient::closeSock(int &sockfd)
+{
+    if(sockfd >= 0)
+    {
+        close(sockfd);
+        sockfd = -1;
+    }
+}
 
 
 

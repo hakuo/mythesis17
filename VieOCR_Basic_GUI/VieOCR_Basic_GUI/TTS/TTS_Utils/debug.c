@@ -32,10 +32,10 @@ void tts_debug_init(){
     FILE *config_file, *log_file;
     char *buffer, *ptr, *path_to_logfile, *buffer_boundary;
     unsigned int sz;
-    ptr = getenv("TTS_SYS_ROOT");
+    ptr = getenv("TOOL_SYS_ROOT");
     if(ptr == NULL){
-        printf("%sERROR: TTS_SYS_ROOT variable is not set!\n",KRED);
-        printf("Please run command:\n\texport TTS_SYS_ROOT=/PATH/TO/TTS/ROOT/%s\n\n",KNRM);
+        printf("%sERROR: TOOL_SYS_ROOT variable is not set!\n",KRED);
+        printf("Please run command:\n\texport TOOL_SYS_ROOT=/PATH/TO/TOOL/ROOT/%s\n\n",KNRM);
         DEBUG_ENABLE = false;
         abort();
         return;

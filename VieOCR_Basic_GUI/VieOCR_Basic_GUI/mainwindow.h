@@ -2,7 +2,6 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "OCR/ImageProcessing.h"
 #include "common.h"
 
 namespace Ui {
@@ -28,11 +27,12 @@ private slots:
 
     void on_dataBrowseButton_released();
 
+    void on_startThreadsButton_released();
+
 private:
     Ui::MainWindow *ui;
-    ImageProcessing mImgProc;
 
-    training_feature_t getTrainingFeature();
+//    training_feature_t getTrainingFeature();
 };
 
 #endif // MAINWINDOW_H

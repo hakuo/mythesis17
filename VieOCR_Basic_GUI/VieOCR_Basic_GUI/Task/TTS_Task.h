@@ -11,6 +11,7 @@
 
 #include "TaskThread.h"
 #include "common.h"
+#include "TTS/TTS.h"
 
 class TTSTask : public TaskThread
 {
@@ -21,6 +22,9 @@ public:
 private:
     virtual bool readyToRun();
     virtual void TaskHandler();
+
+    iHearTech::TTS* mTTSinstance;
+
 
 };
 

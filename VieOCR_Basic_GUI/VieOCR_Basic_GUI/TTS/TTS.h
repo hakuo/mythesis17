@@ -14,6 +14,8 @@
 #include "TTS_Utils/TextObjectTTS.h"
 #include "TTS_Utils/UnitSelector.h"
 
+#define TTS_OUTPUT_PATH "/database/tts"
+
 namespace iHearTech {
 
 class TTS {
@@ -26,7 +28,8 @@ public:
     void sayFile(const char *file_path);
     void sayFile(const std::string file_path);
     void sayFile(FILE *pFile);
-    void outputWav(const char* file_path);
+    std::string createWav(const char *file_path);
+    //void outputWav(const char* file_path);
     void outputUnresolvedList(std::string file_path);
     void enableUnresolvedList(bool enable);
     bool play_enable;

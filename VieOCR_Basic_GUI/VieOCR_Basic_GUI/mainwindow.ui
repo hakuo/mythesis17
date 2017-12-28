@@ -546,6 +546,19 @@
          </property>
         </item>
        </widget>
+       <widget class="QPushButton" name="startThreadsButton">
+        <property name="geometry">
+         <rect>
+          <x>510</x>
+          <y>60</y>
+          <width>101</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Start All Threads</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QWidget" name="tabTraining">
        <attribute name="title">

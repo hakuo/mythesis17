@@ -9,6 +9,7 @@
 #include "TTS_Utils/UnitSelector.h"
 #include "TTS_Utils/Sound.h"
 #include "TTS_Utils/debug.h"
+#include "TCP/TcpUtils/TcpUtils.h"
 
 namespace iHearTech {
 
@@ -22,7 +23,7 @@ TTS::TTS() {
         unit_sel->initMaps();
         unit_sel->storeMaps();
     }
-    this->TTS_SYS_ROOT = std::string(getenv("TTS_SYS_ROOT"));
+    this->TTS_SYS_ROOT = std::string(getenv("TOOL_SYS_ROOT"));
 }
 
 TTS::~TTS() {
@@ -71,6 +72,7 @@ void TTS::sayFile(FILE* pFile){
     char *buffer = (char*)calloc(size, sizeof(char));
     fread(buffer, sizeof(char), size, pFile);
     TTS::sayText(buffer);
+    free(buffer);
 }
 
 void TTS::sayFile(const char *file_path){
@@ -83,6 +85,30 @@ void TTS::sayFile(const char *file_path){
 void TTS::sayFile(const std::string file_path){
     if(file_path.empty()) return;
     TTS::sayFile(file_path.c_str());
+}
+
+std::string TTS::createWav(const char* file_path)
+{
+    if(file_path == NULL) return "";
+    FILE *pFile;
+    if((pFile = fopen(file_path, "r+b")) == NULL) return "";
+    int size;
+    fseek(pFile, 0, SEEK_END);
+    size = ftell(pFile);
+    fseek(pFile, 0, SEEK_SET);
+    char *buffer = (char*)calloc(size, sizeof(char));
+    std::string wavOut = TTS_SYS_ROOT + TcpUtils::removeExt(file_path) + ".wav";
+    if(buffer)
+    {
+        fread(buffer, sizeof(char), size, pFile);
+        text_obj->setInputStr(std::string(buffer));
+        text_obj->normalize();
+        unit_sel->createIdList(text_obj->getOutputStr());
+        unit_sel->createWavFile(wavOut);
+        free(buffer);
+        return wavOut;
+    }
+    return "";
 }
 
 void TTS::outputUnresolvedList(std::string file_path){

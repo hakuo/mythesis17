@@ -52,10 +52,10 @@ MainWindow::~MainWindow()
 void MainWindow::on_imgBrowseButton_released()
 {
     QString filename = QFileDialog::getOpenFileName(this, "Open File", "/home/cuongdh8", "Image File (*.png *.jpg *.PNG *.JPG);; All file (*.*)");
-    if(!filename.isNull() && mImgProc.loadImage(filename.toStdString()))
+    if(!filename.isNull())
     {
         ui->lineImgPath->setText(filename);
-        Utility::showImage(ui->imgShow, mImgProc.mImageGray);
+        //Utility::showImage(ui->imgShow, mImgProc.mImageGray);
     }
     else
     {
@@ -73,15 +73,15 @@ void MainWindow::on_dataBrowseButton_released()
 void MainWindow::on_OCRButton_released()
 {
     setenv("TESSDATA_PREFIX", "/usr/share/tesseract-ocr/tessdata", 1);
-    OCR* ocr_tool = OCRFactory::Get()->createOCR((OCR::ocr_type_t)ui->comboBox->currentIndex());
-    ocr_tool->setInput(ui->lineImgPath->text().toStdString(), mImgProc.mImageGray);
-    ui->statusBar->showMessage("OCR processing...");
-    ocr_tool->run();
-    ui->statusBar->showMessage("OCR done !");
-    std::string outStr;
-    ocr_tool->readTxtToStr(ocr_tool->getOutput(), outStr);
-    ui->textOutput->setText(QString::fromStdString(outStr));
-    delete ocr_tool;
+//    OCR* ocr_tool = OCRFactory::Get()->createOCR((OCR::ocr_type_t)ui->comboBox->currentIndex());
+//    ocr_tool->setInput(ui->lineImgPath->text().toStdString(), mImgProc.mImageGray);
+//    ui->statusBar->showMessage("OCR processing...");
+//    ocr_tool->run();
+//    ui->statusBar->showMessage("OCR done !");
+//    std::string outStr;
+//    ocr_tool->readTxtToStr(ocr_tool->getOutput(), outStr);
+//    ui->textOutput->setText(QString::fromStdString(outStr));
+//    delete ocr_tool;
 }
 
 void MainWindow::on_TTSButton_released()
@@ -93,7 +93,7 @@ void MainWindow::on_TTSButton_released()
         QMessageBox::critical(this, "Error", "Invalid database path");
         return;
     }
-    setenv("TTS_SYS_ROOT", database.c_str(), 1);
+    setenv("TOOL_SYS_ROOT", database.c_str(), 1);
     iHearTech::TTS tmp;
     tmp.sayText(ui->textOutput->toPlainText().toStdString().c_str());
 
@@ -105,3 +105,8 @@ void MainWindow::on_autoButton_released()
 }
 
 
+
+void MainWindow::on_startThreadsButton_released()
+{
+
+}

@@ -47,7 +47,9 @@ SOURCES += \
     mainwindow.cpp \
     TTS/TTS_Utils/debug.c \
     TCP/TcpClient/TcpClient.cpp \
-    TCP/TcpUtils/TcpUtils.cpp
+    TCP/TcpUtils/TcpUtils.cpp \
+    Task/Task.cpp \
+    Task/TcpClient_Task.cpp
 
 
 HEADERS += \
@@ -63,7 +65,6 @@ HEADERS += \
     OCR/TesseractOCR.h \
     Task/OCR_Task.h \
     Task/TaskThread.h \
-    Task/TcpServer_Task.h \
     Task/TTS_Task.h \
     TCP/TcpServer/TcpServer.h \
     TCP/TcpUtils/TcpUtils.h \
@@ -75,7 +76,10 @@ HEADERS += \
     TTS/TTS.h \
     common.h \
     mainwindow.h \
-    TCP/TcpClient/TcpClient.h
+    TCP/TcpClient/TcpClient.h \
+    Task/Task.h \
+    Task/TcpServer_Task.h \
+    Task/TcpClient_Task.h
 
 
 FORMS += \

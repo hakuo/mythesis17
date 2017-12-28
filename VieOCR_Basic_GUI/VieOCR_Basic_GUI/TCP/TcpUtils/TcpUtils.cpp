@@ -294,6 +294,12 @@ std::string genFileExt(file_type_t filetype)
     return ret;
 }
 
+std::string removeExt(const std::string filename) {
+    size_t lastdot = filename.find_last_of(".");
+    if (lastdot == std::string::npos) return filename;
+    return filename.substr(0, lastdot);
+}
+
 bool compareStringInsensitive(const std::string str1, const std::string str2)
 {
     return boost::iequals(str1, str2);
