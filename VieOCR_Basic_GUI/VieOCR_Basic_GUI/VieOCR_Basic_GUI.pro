@@ -23,12 +23,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    OCR/OCR_Utils/src/erfilter.cpp \
-    OCR/OCR_Utils/src/ocr_beamsearch_decoder.cpp \
-    OCR/OCR_Utils/src/ocr_hmm_decoder.cpp \
-    OCR/OCR_Utils/src/ocr_holistic.cpp \
     OCR/OCR_Utils/src/ocr_tesseract.cpp \
-    OCR/OCR_Utils/src/text_detectorCNN.cpp \
     OCR/DnnOCR.cpp \
     OCR/ImageProcessing.cpp \
     OCR/OCR.cpp \
@@ -38,7 +33,6 @@ SOURCES += \
     Task/TaskThread.cpp \
     Task/TcpServer_Task.cpp \
     Task/TTS_Task.cpp \
-    TCP/TcpServer/TcpServer.cpp \
     TTS/TTS_Utils/Sound.cpp \
     TTS/TTS_Utils/TextObjectTTS.cpp \
     TTS/TTS_Utils/UnitSelector.cpp \
@@ -51,12 +45,13 @@ SOURCES += \
     Task/Task.cpp \
     Task/TcpClient_Task.cpp
 
-
+#    TCP/TcpServer/TcpServer.cpp \
+#    OCR/OCR_Utils/src/ocr_beamsearch_decoder.cpp \
+#    OCR/OCR_Utils/src/ocr_hmm_decoder.cpp \
+#    OCR/OCR_Utils/src/ocr_holistic.cpp \
+#    OCR/OCR_Utils/src/erfilter.cpp \
+#    OCR/OCR_Utils/src/text_detectorCNN.cpp \
 HEADERS += \
-    OCR/OCR_Utils/include/text/erfilter.hpp \
-    OCR/OCR_Utils/include/text/ocr.hpp \
-    OCR/OCR_Utils/include/text/textDetector.hpp \
-    OCR/OCR_Utils/include/precomp.hpp \
     OCR/OCR_Utils/include/text.hpp \
     OCR/DnnOCR.h \
     OCR/ImageProcessing.h \
@@ -66,7 +61,6 @@ HEADERS += \
     Task/OCR_Task.h \
     Task/TaskThread.h \
     Task/TTS_Task.h \
-    TCP/TcpServer/TcpServer.h \
     TCP/TcpUtils/TcpUtils.h \
     TTS/TTS_Utils/config.h \
     TTS/TTS_Utils/debug.h \
@@ -81,7 +75,11 @@ HEADERS += \
     Task/TcpServer_Task.h \
     Task/TcpClient_Task.h
 
-
+#    TCP/TcpServer/TcpServer.h \
+#    OCR/OCR_Utils/include/text/textDetector.hpp \
+#    OCR/OCR_Utils/include/precomp.hpp \
+#    OCR/OCR_Utils/include/text/erfilter.hpp \
+#    OCR/OCR_Utils/include/text/ocr.hpp \
 FORMS += \
         mainwindow.ui
 
