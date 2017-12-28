@@ -12,7 +12,8 @@
 OCR::OCR()
 {
     this->OCR_SYS_ROOT = std::string(getenv("TOOL_SYS_ROOT"));
-    setenv("TESSDATA_PREFIX", OCR_SYS_ROOT + TESSDATA_DIR, 1);
+    std::string envPath = OCR_SYS_ROOT + TESSDATA_DIR;
+    setenv("TESSDATA_PREFIX", envPath.c_str(), 1);
 }
 
 
@@ -23,7 +24,7 @@ OCR::~OCR()
 
 bool OCR::loadImage(const std::string imagePath)
 {
-    return(loadImage(mImageGray,imagePath));
+    return(loadImage(mImgInput,imagePath));
 }
 
 bool OCR::loadImage(cv::Mat &image, const std::string imagePath)
@@ -113,20 +114,21 @@ bool OCR::readTxtToStr(const std::string filepath, std::string &des)
 std::string OCR::genTxtPath(std::string filepath)
 {
     std::string outDir = OCR_SYS_ROOT + TMP_PATH;
-    std::string filename = basename(filepath);
+    std::string filename = basename(filepath.c_str());
     if(!TcpUtils::checkDirExist(outDir.c_str()))
     {
-        TcpUtils::createDirectory(outDir);
+        TcpUtils::createDirectory(outDir.c_str());
     }
-    std::string outFile = outDir + TcpUtils::removeExt(inFilename) + ".txt";
+    std::string outFile = outDir + TcpUtils::removeExt(filename) + ".txt";
     remove(outFile.c_str());
     return outFile;
 }
 
 std::string OCR::correct(std::string word)
 {
-
-    Hunspell hun (OCR_SYS_ROOT + HUNSPELL_DIR + "/vi_VN.aff", OCR_SYS_ROOT + HUNSPELL_DIR + "/vi_VN.dic");
+    std::string hunPath1 = OCR_SYS_ROOT + HUNSPELL_DIR + "/vi_VN.aff";
+    std::string hunPath2 = OCR_SYS_ROOT + HUNSPELL_DIR + "/vi_VN.dic";
+    Hunspell hun(hunPath1.c_str(), hunPath2.c_str());
     std::vector<std::string> suggestion;
     if(hun.spell(word, NULL, NULL) == 0)
     {

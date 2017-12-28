@@ -26,7 +26,7 @@ private:
     virtual bool readyToRun();
     virtual void TaskHandler();
 
-    OCR* mOCRinstance;
+    OCR* pOCRinstance;
     ImageProcessing* mImgProc;
 
 

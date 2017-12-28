@@ -43,7 +43,8 @@ void TesseractOCR::run()
     {
         words[i] = correct(words[i]);
     }
-    genOutputPath();
+    //TODO : gen outputpath
+    //mTxtOutput = genTxtPath();
     for(uint16_t i=0; i<words.size(); ++i)
     {
         writeStrToTxt(mTxtOutput, words[i]);

@@ -75,14 +75,15 @@ void OCRTask::TaskHandler()
     memcpy(&rxMsg, buffer, sizeof(message_t));
 
     // Step 2: preprocessing
-    if(!mImgProc->loadImage((char *)rxMsg.data))
+    if(!pOCRinstance->loadImage((char *)rxMsg.data))
     {
         qDebug() << " OCRTask::TaskHandler(): loadImage false";
         return;
     }
 
     // Step 3: runOCR
-    pOCRinstance->setInput((char *)rxMsg.data, mImgProc->mImageGray);
+    // TODO setinput
+    //pOCRinstance->setInput((char *)rxMsg.data, mImgProc->mImageGray);
     pOCRinstance->run();
 
     // Step 6: push output to txQueue

@@ -30,6 +30,7 @@ TcpServerTask::~TcpServerTask()
 
 bool TcpServerTask::readyToRun()
 {
+    mState = TcpUtils::START_DOWNLOAD;
     return (mListenNum != -1) && (mListenPort != -1)
             && (mQueue.txQueue != -1) && (initSock(mListenPort, mListenNum));
 }
@@ -274,12 +275,11 @@ void TcpServerTask::TaskHandler()
     fds[0].fd = mServerSock;
     fds[0].events = POLLIN;
 
-    while(!mThreadTerminate);
+    while(!mThreadTerminate)
     {
         // Call poll() and wait 3 minutes for it complete.
         std::cout << "Waiting on poll() ..." << std::endl;
         rc = poll(fds, nfds, timeout);
-
         // Check error for poll()
         if(rc < 0)
         {

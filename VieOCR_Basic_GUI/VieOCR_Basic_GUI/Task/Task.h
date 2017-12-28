@@ -11,7 +11,7 @@ public:
     Task();
     ~Task();
     void initParameter(int tcpPort, int tcpListenNum);
-    void isTaskRun(TaskThread* task);
+    bool isTaskRun(TaskThread* task);
     void runAllTask();
 private:
     OCRTask *pOCR;
