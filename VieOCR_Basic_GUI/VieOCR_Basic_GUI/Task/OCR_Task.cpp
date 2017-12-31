@@ -58,18 +58,24 @@ void OCRTask::TaskHandler()
     szLen = popMessageQueue(mQueue.rxQueue, (char *)buffer);
     if(szLen <= 0)
     {
-        //QDebug() << "OCRTask: Queue empty";
+        qDebug() << "OCRTask: Queue empty";
         return;
     }
+    qDebug("----------------------1");
     memset(&rxMsg, 0, sizeof(message_t));
     memcpy(&rxMsg, buffer, sizeof(message_t));
-
+    qDebug("----------------------2");
     std::string outTxt = pOCRinstance->createTxt((char *)rxMsg.data);
+    qDebug("----------------------3");
     if(outTxt.length() > 0)
     {
+        qDebug("----------------------3");
         memset(&txMsg, 0, sizeof(message_t));
+        qDebug("----------------------4");
         txMsg.msg_id = rxMsg.msg_id;
+        qDebug("----------------------5");
         memcpy(txMsg.data, outTxt.c_str(), outTxt.length());
+        qDebug("----------------------6");
         pushMessageQueue(mQueue.txQueue, (char *)&txMsg, sizeof(message_t));
     }
 }

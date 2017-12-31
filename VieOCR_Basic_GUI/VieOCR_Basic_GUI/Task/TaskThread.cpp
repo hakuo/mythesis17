@@ -1,6 +1,7 @@
 #include "TaskThread.h"
 #include "pthread.h"
 #include <QDebug>
+#include "errno.h"
 
 #define MQUEUE_PERMISSIONS 0644
 #define MAX_MQUEUE_NO 10
@@ -64,12 +65,12 @@ void TaskThread::ThreadLoop()
 
 mqd_t TaskThread::openRxQueue(const char *pName)
 {
-    return openMessageQueue(pName, (O_CREAT | O_RDONLY | O_NONBLOCK));
+    return openMessageQueue(pName, (O_CREAT | O_RDONLY));
 }
 
 mqd_t TaskThread::openTxQueue(const char *pName)
 {
-    return openMessageQueue(pName, (O_CREAT | O_WRONLY | O_NONBLOCK));
+    return openMessageQueue(pName, (O_CREAT | O_WRONLY));
 }
 
 mqd_t TaskThread::openMessageQueue(const char *pName, int32_t flag)
@@ -88,6 +89,7 @@ mqd_t TaskThread::openMessageQueue(const char *pName, int32_t flag)
             //std::cout << "Queue open error " << pName << std::endl;
             qDebug() << "openMessageQueue(): Queue open error " << pName;
         }
+        qDebug() << "opened mq " << pName;
     }
 
     return retQid;
@@ -107,6 +109,7 @@ void TaskThread::pushMessageQueue(mqd_t mqQidDes, const char *pOutBuf, size_t sz
     if ((-1 != mqQidDes) && (pOutBuf != NULL) && (szLen > 0))
     {
         mq_send(mqQidDes, pOutBuf, szLen, 0);
+        qDebug() << "push 1 message to queue";
     }
     else
     {
@@ -125,9 +128,11 @@ ssize_t TaskThread::popMessageQueue(mqd_t mqQidFrom, char *pMsgBuf)
 
     if (-1 != mqQidFrom) {
         nRecvBytes = mq_receive(mqQidFrom, pMsgBuf, MAX_MQUEUE_SIZE, 0);
+        qDebug() << "receive 1 msg" << (int)nRecvBytes;
     }
 
     if (-1 == nRecvBytes) {
+        perror("popMq failed");
         qDebug() << "Receive message from message queue has been failed";
     }
     return nRecvBytes;

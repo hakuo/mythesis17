@@ -30,23 +30,25 @@ std::string OCR::createTxt(std::string inputPath)
     {
         this->genTxtPath(mInputPath, mTxtOutput);
         this->run();
+        while(isRun);
         ret = this->getOutput();
         this->resetPath();
     }
     return ret;
 }
 
+// loadImg from image path
+// if load success => store imagePath to storeStr and store image
 bool OCR::loadImage(cv::Mat &image, std::string &storeStr,  const std::string imagePath)
 {
     bool ret;
-    cv::Mat tmp = cv::imread(imagePath, CV_LOAD_IMAGE_GRAYSCALE);
-    if(tmp.data == NULL)
+    image = cv::imread(imagePath, CV_LOAD_IMAGE_GRAYSCALE);
+    if(image.data == NULL)
     {
         ret = false;
     }
     else
     {
-        image = tmp.clone();
         storeStr = imagePath;
         ret = true;
     }
@@ -118,12 +120,12 @@ bool OCR::readTxtToStr(const std::string filepath, std::string &des)
 void OCR::genTxtPath(std::string &txtOutStr, std::string filepath)
 {
     std::string outDir = OCR_SYS_ROOT + TMP_PATH;
-    std::string filename = basename(filepath.c_str());
+    std::string filename = basename(filepath.c_str());          // abc.jpg
     if(!TcpUtils::checkDirExist(outDir.c_str()))
     {
         TcpUtils::createDirectory(outDir.c_str());
     }
-    txtOutStr = outDir + TcpUtils::removeExt(filename) + ".txt";
+    txtOutStr = outDir + "/" +TcpUtils::removeExt(filename) + ".txt";    // <outDir>/abc.txt
     remove(txtOutStr.c_str());
 }
 
@@ -131,7 +133,7 @@ void OCR::resetPath()
 {
     mInputPath = "";
     mTxtOutput = "";
-    mImgInput.release();
+    //mImgInput.release();
 }
 
 std::string OCR::correct(std::string word)

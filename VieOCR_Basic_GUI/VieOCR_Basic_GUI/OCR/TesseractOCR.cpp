@@ -29,7 +29,7 @@ void TesseractOCR::run()
     // TODO: Binary
     // TODO: Hough transform
     // TODO: Segmentation
-
+    isRun = true;
     //Mat img = imread("TEST_010.PNG", CV_LOAD_IMAGE_GRAYSCALE);
     Ptr<OCRTesseract> ocr = OCRTesseract::create(NULL, LANGUAGE, WHITE_LIST);
     string output;
@@ -50,5 +50,6 @@ void TesseractOCR::run()
         writeStrToTxt(mTxtOutput, words[i]);
         writeStrToTxt(mTxtOutput, " ");
     }
+    isRun = false;
     qDebug() << "Tesseract done";
 }

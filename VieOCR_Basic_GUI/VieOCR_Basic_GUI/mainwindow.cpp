@@ -7,6 +7,7 @@
 #include "OCR/OCR_Factory.h"
 #include "TTS/TTS.h"
 #include "TCP/TcpUtils/TcpUtils.h"
+#include "Task/Task.h"
 
 /////////////////////////////// Utilities /////////////////////////////////////
 namespace Utility {
@@ -72,7 +73,7 @@ void MainWindow::on_dataBrowseButton_released()
 
 void MainWindow::on_OCRButton_released()
 {
-    setenv("TESSDATA_PREFIX", "/usr/share/tesseract-ocr/tessdata", 1);
+//    setenv("TESSDATA_PREFIX", "/usr/share/tesseract-ocr/tessdata", 1);
 //    OCR* ocr_tool = OCRFactory::Get()->createOCR((OCR::ocr_type_t)ui->comboBox->currentIndex());
 //    ocr_tool->setInput(ui->lineImgPath->text().toStdString(), mImgProc.mImageGray);
 //    ui->statusBar->showMessage("OCR processing...");
@@ -87,20 +88,31 @@ void MainWindow::on_OCRButton_released()
 void MainWindow::on_TTSButton_released()
 {
     // set environment path first
-    std::string database = ui->lineDataPath->text().toStdString();
-    if((database == "") || (TcpUtils::checkDirExist(database.c_str()) == false))
-    {
-        QMessageBox::critical(this, "Error", "Invalid database path");
-        return;
-    }
-    setenv("TOOL_SYS_ROOT", database.c_str(), 1);
-    iHearTech::TTS tmp;
-    tmp.sayText(ui->textOutput->toPlainText().toStdString().c_str());
+//    std::string database = ui->lineDataPath->text().toStdString();
+//    if((database == "") || (TcpUtils::checkDirExist(database.c_str()) == false))
+//    {
+//        QMessageBox::critical(this, "Error", "Invalid database path");
+//        return;
+//    }
+//    setenv("TOOL_SYS_ROOT", database.c_str(), 1);
+//    iHearTech::TTS tmp;
+//    tmp.sayText(ui->textOutput->toPlainText().toStdString().c_str());
 
 }
 
 void MainWindow::on_autoButton_released()
 {
+    setenv("TOOL_SYS_ROOT", ui->lineDataPath->text().toStdString().c_str(), 1);
+    Task taskinstance((OCR::ocr_type_t)ui->comboBox->currentIndex());
+    taskinstance.runAllTask();
+#if 1
+    mqd_t queue = TaskThread::openTxQueue(OCR_QUEUE);
+    TaskThread::message_t msg;
+    memset(&msg, 0, sizeof(msg));
+    strncpy((char *)msg.data, ui->lineImgPath->text().toStdString().c_str(), ui->lineDataPath->text().toStdString().length());
+    TaskThread::pushMessageQueue(queue, (char *)&msg, sizeof(msg));
+    //TaskThread::closeMessageQueue(queue);
+#endif
 
 }
 

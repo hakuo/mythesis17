@@ -18,6 +18,7 @@ public:
     std::string createTxt(std::string inputPath);
 
 protected:
+    bool isRun;
     std::string OCR_SYS_ROOT;
     cv::Mat mImgInput;
     std::string mInputPath;

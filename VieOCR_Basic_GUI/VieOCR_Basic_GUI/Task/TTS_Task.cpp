@@ -51,7 +51,7 @@ void TTSTask::TaskHandler()
     szLen = popMessageQueue(mQueue.rxQueue, (char *)buffer);
     if(szLen <= 0)
     {
-        //QDebug() << "TTSTask: Queue empty";
+        qDebug() << "TTSTask: Queue empty";
         return;
     }
     memset(&rxMsg, 0, sizeof(message_t));

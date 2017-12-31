@@ -4,11 +4,12 @@
 #include "OCR_Task.h"
 #include "TTS_Task.h"
 #include "TcpServer_Task.h"
+#include "TcpClient_Task.h"
 
 class Task
 {
 public:
-    Task();
+    Task(OCR::ocr_type_t type);
     ~Task();
     void initParameter(int tcpPort, int tcpListenNum);
     bool isTaskRun(TaskThread* task);
@@ -17,6 +18,7 @@ private:
     OCRTask *pOCR;
     TTSTask *pTTS;
     TcpServerTask *pTcpServer;
+    TcpClientTask *pTcpClient;
 
 
 };
