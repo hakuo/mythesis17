@@ -1,5 +1,5 @@
 #include "TcpClient.h"
-#include "TCP/TcpUtils/TcpUtils.h"
+#include "TcpUtils/TcpUtils.h"
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -7,6 +7,7 @@
 #include <netinet/in.h>
 #include <iostream>
 #include <sys/poll.h>
+#include <sys/sendfile.h>
 #include <fstream>
 
 #define MAX_TIMEOUT_OCCUR 5
@@ -14,6 +15,7 @@
 TcpClient::TcpClient()
 {
     mClientSock = -1;
+    mInterface = "";
 }
 
 TcpClient::~TcpClient()
@@ -21,13 +23,9 @@ TcpClient::~TcpClient()
     closeSock(mClientSock);
 }
 
-void TcpClient::closeSock(int &sockfd)
+void TcpClient::setDefaultInterface(std::string interface)
 {
-    if(sockfd >= 0)
-    {
-        close(sockfd);
-        sockfd = -1;
-    }
+    mInterface = interface;
 }
 
 bool TcpClient::connectToServer(const char *serv_addr_str, uint16_t portno)
@@ -104,6 +102,7 @@ bool TcpClient::sendFile(const std::string filepath)
     file_info.crc = TcpUtils::calcFileCRC(filepath);
     file_info.size = szLen;
     file_info.type = TcpUtils::getFileType(filepath);
+    file_info.from = TcpUtils::getIp(TCP_INTERFACE);
 
     TcpUtils::tcp_pkg_t *txBuffer = new TcpUtils::tcp_pkg_t;
     TcpUtils::tcp_pkg_t *rxBuffer = new TcpUtils::tcp_pkg_t;
@@ -123,12 +122,13 @@ bool TcpClient::sendFile(const std::string filepath)
     // Step 3: transfer file
     cmd = TcpUtils::TRANFER_FILE;
     std::ifstream inFile;
-    uint8_t data[DATA_SIZE];
+    uint8_t data[DATA_SIZE] = {0};
     inFile.open(filepath, std::ios::in | std::ios::binary);
     if(inFile.is_open())
     {
         while(!inFile.eof())
         {
+            memset(data, 0, DATA_SIZE);
             inFile.read((char *)data, DATA_SIZE);
             TcpUtils::makeTxPackage(txBuffer, cmd, cmd_type, data, DATA_SIZE);
             if (TcpUtils::sendPackage(mClientSock, txBuffer, rxBuffer, &szRecv) == false)
@@ -157,8 +157,20 @@ bool TcpClient::sendFile(const std::string filepath)
 }
 
 
+void TcpClient::closeSock(int &sockfd)
+{
+    if(sockfd >= 0)
+    {
+        close(sockfd);
+        sockfd = -1;
+    }
+}
 
 
+void TcpClient::closeSock()
+{
+    closeSock(mClientSock);
+}
 
 
 

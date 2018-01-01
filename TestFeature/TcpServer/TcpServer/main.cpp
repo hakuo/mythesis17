@@ -6,6 +6,13 @@ using namespace std;
 
 int main()
 {
-    cout << "Hello World!" << endl;
+    TcpServerTask test;
+    test.setListenPort(8080);
+    test.setListenNum(1);
+    if(test.readyToRun())
+    {
+        test.TaskHandler();
+    }
+
     return 0;
 }

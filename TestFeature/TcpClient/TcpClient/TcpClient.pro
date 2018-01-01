@@ -4,11 +4,13 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += \
-    TcpUtils/TcpUltis.cpp \
-    main.cpp \
-    tcpclient.cpp
+    TcpClient/TcpClient.cpp \
+    TcpUtils/TcpUtils.cpp \
+    main.cpp
+
 
 HEADERS += \
-    TcpUtils/TcpUtils.h \
-    tcpclient.h
+    TcpClient/TcpClient.h \
+    TcpUtils/TcpUtils.h
+
 

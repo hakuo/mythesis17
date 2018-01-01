@@ -25,7 +25,7 @@ void Task::initParameter(int tcpPort, int tcpListenNum)
 
 void Task::runAllTask()
 {
-//    pTcpServer->run();
+    pTcpServer->run();
     pOCR->run();
     pTTS->run();
 //    pTcpClient->run();

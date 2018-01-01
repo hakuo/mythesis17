@@ -6,10 +6,11 @@
 
 namespace TcpUtils {
 
-//#define SERVER_PORT 12345
+#define TCP_PORT 12345
 #define DATA_SIZE 1024
-#define DOWNLOAD_FOLDER "./recv/"
-#define UPLOAD_FOLDER "./send/"
+//#define DOWNLOAD_FOLDER "./recv/"
+//#define UPLOAD_FOLDER "./send/"
+
 
 typedef enum: uint8_t
 {
@@ -54,6 +55,8 @@ typedef struct
     file_type_t type;
     uint32_t size;
     uint32_t crc;
+    std::string from;
+
 }file_info_t;
 
 typedef struct
@@ -61,6 +64,7 @@ typedef struct
     file_info_t header;
     std::string filepath;
 }file_t;
+
 void makeTxPackage(tcp_pkg_t *pkg, request_t cmd, response_t error_code, uint8_t* data = NULL, uint16_t len = 0);
 //uint8_t* allocResponse(request_t cmd, response_t error_code, uint8_t* data = NULL, uint16_t len = 0);
 bool checkAvailableToWrite(file_t file);
@@ -72,7 +76,7 @@ bool genFilePath(file_t &file, const char *dir);
 std::string ZeroPadNumber(uint32_t num);
 bool checkDirExist(const char* dir);
 bool createDirectory(const char* dir);
-bool initEnv();
+//bool initEnv();
 std::string getFileExt(const std::string filepath);
 file_type_t getFileType(const std::string filepath);
 std::string genFileExt(file_type_t file_type);
@@ -81,7 +85,10 @@ void freePointer(tcp_pkg_t *pointer);
 bool recvSock(int sockfd, void* buffer, ssize_t* szLen);
 bool sendSock(int sockfd, void *buffer, size_t szLen);
 bool sendPackage(int sockfd, tcp_pkg_t *txBuffer, tcp_pkg_t *rxBuffer, ssize_t *szRecv);
+std::string removeExt(const std::string filename);
+std::string getIp(const char* interface);
 
 } // namaspace TcpUtils
 
 #endif // SOCKET_TYPES_H
+

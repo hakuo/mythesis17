@@ -14,11 +14,13 @@
 
 TcpServerTask::TcpServerTask()
 {
+    TCP_SYS_ROOT = std::string(getenv("TOOL_SYS_ROOT"));
     mServerSock = -1;
     mQueue.txQueue = -1;
     mQueue.rxQueue = -1;
     mListenNum = -1;
     mListenPort = -1;
+    remain_size = 0;
 
 }
 
@@ -139,7 +141,9 @@ void TcpServerTask::handleMessage(const TcpUtils::tcp_pkg_t *rxPackge, TcpUtils:
 
 void TcpServerTask::startDownload(const uint8_t *data, TcpUtils::tcp_pkg_t *txPackage)
 {
+    std::cout << "Start Download" << std::endl;
     TcpUtils::request_t cmd = TcpUtils::START_DOWNLOAD;
+    std::string tmp_dir = TCP_SYS_ROOT + TMP_PATH;
     TcpUtils::response_t error_code;
     switch (mState) {
     case TcpUtils::START_DOWNLOAD:
@@ -149,12 +153,12 @@ void TcpServerTask::startDownload(const uint8_t *data, TcpUtils::tcp_pkg_t *txPa
         std::cout << "file_size: " << (int)mFile.header.size << std::endl;
         std::cout << "file_crc: " << (int)mFile.header.crc << std::endl;
         std::cout << "from: " << mFile.header.from << std::endl;
-
-        TcpUtils::genFilePath(mFile, TMP_PATH);
+        TcpUtils::genFilePath(mFile, tmp_dir.c_str());
         if(TcpUtils::checkAvailableToWrite(mFile))
         {
             //buffer = TcpUtils::allocResponse(cmd, TcpUtils::POSITIVE_RESPONSE);
             //package = TcpUtils::makeTxPackage(cmd, TcpUtils::POSITIVE_RESPONSE);
+            remain_size = mFile.header.size;
             error_code = TcpUtils::POSITIVE_RESPONSE;
             mState = TcpUtils::TRANFER_FILE;
         }
@@ -180,12 +184,15 @@ void TcpServerTask::startDownload(const uint8_t *data, TcpUtils::tcp_pkg_t *txPa
 
 void TcpServerTask::transferFile(const uint8_t *data, TcpUtils::tcp_pkg_t *txPackage)
 {
+    std::cout << "tranfer file" << std::endl;
     TcpUtils::request_t cmd = TcpUtils::TRANFER_FILE;
     TcpUtils::response_t error_code;
+    uint32_t writelen = (remain_size > TCP_BUFFER_SIZE) ? TCP_BUFFER_SIZE : remain_size;
     switch (mState) {
     case TcpUtils::TRANFER_FILE:
-        if(TcpUtils::writeFileToMemory(mFile.filepath, data, TCP_BUFFER_SIZE))
+        if(TcpUtils::writeFileToMemory(mFile.filepath, data, writelen))
         {
+            remain_size -= writelen;
             //buffer = allocResponse(cmd, TcpUtils::POSITIVE_RESPONSE);
             error_code = TcpUtils::POSITIVE_RESPONSE;
         }
@@ -210,6 +217,7 @@ void TcpServerTask::transferFile(const uint8_t *data, TcpUtils::tcp_pkg_t *txPac
 
 void TcpServerTask::endDownload(TcpUtils::tcp_pkg_t *txPackage)
 {
+    std::cout << "end Download" << std::endl;
     TcpUtils::response_t error_code;
     TcpUtils::request_t cmd = TcpUtils::END_DOWNLOAD;
     switch (mState) {
@@ -368,6 +376,7 @@ void TcpServerTask::TaskHandler()
                     rc = -1;
                     if(rxBuffer != NULL)
                     {
+                        memset(rxBuffer, 0, sizeof(TcpUtils::tcp_pkg_t));
                         rc = recv(fds[i].fd, rxBuffer, TCP_BUFFER_SIZE, 0);
                     }
 

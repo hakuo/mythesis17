@@ -2,6 +2,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <unistd.h>
 #include <sys/poll.h>
 #include <sys/ioctl.h>
@@ -9,21 +10,46 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
-//#include <QDebug>
+#include <iostream>
 
-////////////////////////////// TcpServer ////////////////////////////////
-TcpServer::TcpServer()
+TcpServerTask::TcpServerTask()
 {
+
     mServerSock = -1;
-    mTerminate = false;
+    TCP_SYS_ROOT = std::string(getenv("TOOL_SYS_ROOT"));
+    //mQueue.txQueue = -1;
+    //mQueue.rxQueue = -1;
+    mListenNum = -1;
+    mListenPort = -1;
+
 }
 
-TcpServer::~TcpServer()
+TcpServerTask::~TcpServerTask()
 {
-
+    //this->stop();
+    //this->closeMessageQueue(mQueue.txQueue);
 }
 
-bool TcpServer::initSock(uint16_t portno, uint8_t listen_num)
+bool TcpServerTask::readyToRun()
+{
+    //sock_map.clear();
+    //mQueue.txQueue = openTxQueue(OCR_QUEUE);
+    mState = TcpUtils::START_DOWNLOAD;
+    return (mListenNum != -1) && (mListenPort != -1)
+            /*&& (mQueue.txQueue != -1)*/ && (initSock(mListenPort, mListenNum));
+}
+
+void TcpServerTask::setListenPort(int portno)
+{
+    mListenPort = portno;
+}
+
+void TcpServerTask::setListenNum(int num)
+{
+    mListenNum = num;
+}
+
+bool TcpServerTask::initSock(uint16_t portno, uint8_t listen_num)
 {
     int rc, on = 1;
     struct sockaddr_in serv_addr;
@@ -79,6 +105,7 @@ bool TcpServer::initSock(uint16_t portno, uint8_t listen_num)
         }
         std::cout << "Initialize TcpServer successful" << std::endl;
         std::cout << "Listening port " << (int)portno << std::endl;
+//        mTerminate = false; // ready to listen this port
         return true;
     }
     else
@@ -88,9 +115,159 @@ bool TcpServer::initSock(uint16_t portno, uint8_t listen_num)
     }
 }
 
-void TcpServer::run()
+void TcpServerTask::closeSock(int &sockfd)
 {
-    if(mServerSock == -1) return;
+    std::cout << "Closed socket " << (int)sockfd << std::endl;
+    close(sockfd);
+    sockfd = -1;
+}
+
+void TcpServerTask::handleMessage(const TcpUtils::tcp_pkg_t *rxPackge, TcpUtils::tcp_pkg_t *txPackage)
+{
+    switch (rxPackge->header.cmd) {
+    case TcpUtils::START_DOWNLOAD:
+        startDownload(rxPackge->data, txPackage);
+        break;
+    case TcpUtils::TRANFER_FILE:
+        transferFile(rxPackge->data, txPackage);
+        break;
+    case TcpUtils::END_DOWNLOAD:
+        endDownload(txPackage);
+        break;
+    default:
+        break;
+    }
+}
+
+void TcpServerTask::startDownload(const uint8_t *data, TcpUtils::tcp_pkg_t *txPackage)
+{
+    TcpUtils::request_t cmd = TcpUtils::START_DOWNLOAD;
+    std::string tmp_dir = TCP_SYS_ROOT + TMP_PATH;
+    TcpUtils::response_t error_code;
+    switch (mState) {
+    case TcpUtils::START_DOWNLOAD:
+        memset(&mFile, 0, sizeof(mFile));
+        memcpy(&mFile.header, data, sizeof(mFile.header));
+        std::cout << "file_type: " << (int)mFile.header.type << std::endl;
+        std::cout << "file_size: " << (int)mFile.header.size << std::endl;
+        std::cout << "file_crc: " << (int)mFile.header.crc << std::endl;
+        std::cout << "from: " << mFile.header.from << std::endl;
+        TcpUtils::genFilePath(mFile, tmp_dir.c_str());
+        if(TcpUtils::checkAvailableToWrite(mFile))
+        {
+            //buffer = TcpUtils::allocResponse(cmd, TcpUtils::POSITIVE_RESPONSE);
+            //package = TcpUtils::makeTxPackage(cmd, TcpUtils::POSITIVE_RESPONSE);
+            error_code = TcpUtils::POSITIVE_RESPONSE;
+            mState = TcpUtils::TRANFER_FILE;
+        }
+        else
+        {
+            // File too large, don't have enough memory
+            //buffer = TcpUtils::allocResponse(cmd, TcpUtils::NEGATIVE_RESPONSE_NOTSEND);
+            //package = TcpUtils::makeTxPackage(cmd, TcpUtils::NEGATIVE_RESPONSE_NOTSEND);
+            error_code = TcpUtils::NEGATIVE_RESPONSE_NOTSEND;
+        }
+        break;
+    case TcpUtils::TRANFER_FILE:
+        // fall-through
+    case TcpUtils::END_DOWNLOAD: // Never turn to this state
+        // fall-through
+    default:
+        //buffer = TcpUtils::allocResponse(cmd, TcpUtils::NEGATIVE_RESPONSE_RESEND);
+        error_code = TcpUtils::NEGATIVE_RESPONSE_RESEND;
+        break;
+    }
+    TcpUtils::makeTxPackage(txPackage, cmd, error_code);
+}
+
+void TcpServerTask::transferFile(const uint8_t *data, TcpUtils::tcp_pkg_t *txPackage)
+{
+    TcpUtils::request_t cmd = TcpUtils::TRANFER_FILE;
+    TcpUtils::response_t error_code;
+    switch (mState) {
+    case TcpUtils::TRANFER_FILE:
+        if(TcpUtils::writeFileToMemory(mFile.filepath, data, TCP_BUFFER_SIZE))
+        {
+            //buffer = allocResponse(cmd, TcpUtils::POSITIVE_RESPONSE);
+            error_code = TcpUtils::POSITIVE_RESPONSE;
+        }
+        else
+        {
+            //buffer = TcpUtils::allocResponse(cmd, TcpUtils::NEGATIVE_RESPONSE_RESEND);
+            error_code = TcpUtils::NEGATIVE_RESPONSE_RESEND;    // recheck ???
+        }
+        // don't change state
+        break;
+    case TcpUtils::START_DOWNLOAD:
+        // fall-through
+    case TcpUtils::END_DOWNLOAD: // Never turn to this state
+        // fall-through
+    default:
+        //buffer = TcpUtils::allocResponse(cmd, TcpUtils::NEGATIVE_RESPONSE_RESEND);
+        error_code = TcpUtils::NEGATIVE_RESPONSE_NOTSEND; // Critical error
+        break;
+    }
+    TcpUtils::makeTxPackage(txPackage, cmd, error_code);
+}
+
+void TcpServerTask::endDownload(TcpUtils::tcp_pkg_t *txPackage)
+{
+    TcpUtils::response_t error_code;
+    TcpUtils::request_t cmd = TcpUtils::END_DOWNLOAD;
+    switch (mState) {
+    case TcpUtils::TRANFER_FILE:
+        if(TcpUtils::verifyDownloadPackage(mFile))
+        {
+            //buffer = allocResponse(cmd, TcpUtils::POSITIVE_RESPONSE);
+            error_code = TcpUtils::POSITIVE_RESPONSE;
+            // TODO: notify OCR Module
+            notifyFileAvailable(mFile);
+        }
+        else
+        {
+            //buffer = TcpUtils::allocResponse(cmd, TcpUtils::NEGATIVE_RESPONSE_RESEND);
+            error_code = TcpUtils::NEGATIVE_RESPONSE_RESEND_ALL;
+            qDebug() << "Download file " << mFile.filepath.c_str() << " error. Need to download again";
+        }
+        // Change state to start download again
+        mState = TcpUtils::START_DOWNLOAD;
+        break;
+    case TcpUtils::START_DOWNLOAD:
+        // fall-through
+    case TcpUtils::END_DOWNLOAD: // Never turn to this state
+        // fall-through
+    default:
+        //buffer = TcpUtils::allocResponse(cmd, TcpUtils::NEGATIVE_RESPONSE_RESEND);
+        error_code = TcpUtils::NEGATIVE_RESPONSE_NOTSEND; // Critical error ???
+        break;
+    }
+    TcpUtils::makeTxPackage(txPackage, cmd, error_code);
+}
+
+void TcpServerTask::notifyFileAvailable(const TcpUtils::file_t file)
+{
+    // TODO: pushTxQueue
+    std::cout << "File  " << file.filepath << " download successful" << std::endl;
+    if(mQueue.txQueue != -1)
+    {
+        //char buffer[MAX_MQUEUE_SIZE] = {0};
+        //strncpy(buffer, filepath.c_str(), filepath.length());
+        message_t msg;
+        memset(&msg, 0, sizeof(msg));
+        memcpy(msg.msg_id, file.header.from.c_str(), file.header.from.length());
+        strncpy((char *)msg.data, file.filepath.c_str(), file.filepath.length());
+        pushMessageQueue(mQueue.txQueue, (char *)&msg, sizeof(msg));
+    }
+}
+
+void TcpServerTask::ThreadLoop()
+{
+    this->TaskHandler();
+}
+
+void TcpServerTask::TaskHandler()
+{
+    //if(mServerSock == -1) return;
 
     int rc, nfds, current_size;
     bool close_connect, compress_array = false;
@@ -108,22 +285,23 @@ void TcpServer::run()
     fds[0].fd = mServerSock;
     fds[0].events = POLLIN;
 
-    do
+    while(!mThreadTerminate)
     {
         // Call poll() and wait 3 minutes for it complete.
         std::cout << "Waiting on poll() ..." << std::endl;
         rc = poll(fds, nfds, timeout);
-
         // Check error for poll()
         if(rc < 0)
         {
             perror("poll() failed");
-            break;
+            mThreadTerminate = true;
+            continue;
         }
         if(rc == 0)
         {
             std::cout << "poll() timed out. End program" << std::endl;
-            break;
+            mThreadTerminate = true;
+            continue;
         }
 
         // One or more descriptors are readable. Need to determine which ones they are
@@ -139,7 +317,8 @@ void TcpServer::run()
             if(fds[i].revents != POLLIN)
             {
                 std::cout << "Error! revents = " << (int)fds[i].revents << std::endl;
-                stop(); // end_server
+                mThreadTerminate = true;
+                //stop(); // end_server
                 break;
             }
             if(fds[i].fd == mServerSock)
@@ -155,13 +334,14 @@ void TcpServer::run()
                         if(errno != EWOULDBLOCK)
                         {
                             perror("accept() failed");
-                            stop(); // end_server
+                            mThreadTerminate = true;
+                            //stop(); // end_server
                         }
                         break; // continue to accept if error_type is EWOULDBLOCK
                     }
 
-                    // Add new incoming connection to the pollfd structure
                     std::cout << "New incoming connection - " << (int)client_sock << std::endl;
+
                     fds[nfds].fd = client_sock;
                     fds[nfds].events = POLLIN;
                     ++nfds;
@@ -269,7 +449,7 @@ void TcpServer::run()
                 }
             }
         }
-    } while(!mTerminate); // End of server
+    }// End of server
 
     // Clean up all of sockets which are opening
     for(int i=0; i<nfds; ++i)
@@ -278,155 +458,6 @@ void TcpServer::run()
     }
     closeSock(mServerSock);
 }
-
-void TcpServer::stop()
-{
-    mTerminate = true;
-}
-
-void TcpServer::closeSock(int &sockfd)
-{
-    std::cout << "Closed socket " << (int)sockfd << std::endl;
-    close(sockfd);
-    sockfd = -1;
-}
-
-void TcpServer::handleMessage(const TcpUtils::tcp_pkg_t *rxPackge, TcpUtils::tcp_pkg_t *txPackge)
-{
-    switch (rxPackge->header.cmd) {
-    case TcpUtils::START_DOWNLOAD:
-        startDownload(rxPackge->data, txPackge);
-        break;
-    case TcpUtils::TRANFER_FILE:
-        transferFile(rxPackge->data, txPackge);
-        break;
-    case TcpUtils::END_DOWNLOAD:
-        endDownload(txPackge);
-        break;
-    default:
-        break;
-    }
-}
-
-void TcpServer::startDownload(const uint8_t *data, TcpUtils::tcp_pkg_t *txPackage)
-{
-    TcpUtils::request_t cmd = TcpUtils::START_DOWNLOAD;
-    TcpUtils::response_t error_code;
-    switch (mState) {
-    case TcpUtils::START_DOWNLOAD:
-        memcpy(&mFile.header, data, sizeof(mFile.header));
-        std::cout << "file_type: " << (int)mFile.header.type << std::endl;
-        std::cout << "file_size: " << (int)mFile.header.size << std::endl;
-        std::cout << "file_crc: " << (int)mFile.header.crc << std::endl;
-
-        TcpUtils::genFilePath(mFile, DOWNLOAD_FOLDER);
-        if(TcpUtils::checkAvailableToWrite(mFile))
-        {
-            //buffer = TcpUtils::allocResponse(cmd, TcpUtils::POSITIVE_RESPONSE);
-            //package = TcpUtils::makeTxPackage(cmd, TcpUtils::POSITIVE_RESPONSE);
-            error_code = TcpUtils::POSITIVE_RESPONSE;
-            mState = TcpUtils::TRANFER_FILE;
-        }
-        else
-        {
-            // File too large, don't have enough memory
-            //buffer = TcpUtils::allocResponse(cmd, TcpUtils::NEGATIVE_RESPONSE_NOTSEND);
-            //package = TcpUtils::makeTxPackage(cmd, TcpUtils::NEGATIVE_RESPONSE_NOTSEND);
-            error_code = TcpUtils::NEGATIVE_RESPONSE_NOTSEND;
-        }
-        break;
-    case TcpUtils::TRANFER_FILE:
-        // fall-through
-    case TcpUtils::END_DOWNLOAD: // Never turn to this state
-        // fall-through
-    default:
-        //buffer = TcpUtils::allocResponse(cmd, TcpUtils::NEGATIVE_RESPONSE_RESEND);
-        error_code = TcpUtils::NEGATIVE_RESPONSE_RESEND;
-        break;
-    }
-    TcpUtils::makeTxPackage(txPackage, cmd, error_code);
-}
-
-void TcpServer::transferFile(const uint8_t *data, TcpUtils::tcp_pkg_t *txPackage)
-{
-    TcpUtils::request_t cmd = TcpUtils::TRANFER_FILE;
-    TcpUtils::response_t error_code;
-    switch (mState) {
-    case TcpUtils::TRANFER_FILE:
-        if(TcpUtils::writeFileToMemory(mFile.filepath, data, TCP_BUFFER_SIZE))
-        {
-            //buffer = allocResponse(cmd, TcpUtils::POSITIVE_RESPONSE);
-            error_code = TcpUtils::POSITIVE_RESPONSE;
-        }
-        else
-        {
-            //buffer = TcpUtils::allocResponse(cmd, TcpUtils::NEGATIVE_RESPONSE_RESEND);
-            error_code = TcpUtils::NEGATIVE_RESPONSE_RESEND;    // recheck ???
-        }
-        // don't change state
-        break;
-    case TcpUtils::START_DOWNLOAD:
-        // fall-through
-    case TcpUtils::END_DOWNLOAD: // Never turn to this state
-        // fall-through
-    default:
-        //buffer = TcpUtils::allocResponse(cmd, TcpUtils::NEGATIVE_RESPONSE_RESEND);
-        error_code = TcpUtils::NEGATIVE_RESPONSE_NOTSEND; // Critical error
-        break;
-    }
-    TcpUtils::makeTxPackage(txPackage, cmd, error_code);
-}
-
-void TcpServer::endDownload(TcpUtils::tcp_pkg_t *txPackage)
-{
-    TcpUtils::response_t error_code;
-    TcpUtils::request_t cmd = TcpUtils::END_DOWNLOAD;
-    switch (mState) {
-    case TcpUtils::TRANFER_FILE:
-        if(TcpUtils::verifyDownloadPackage(mFile))
-        {
-            //buffer = allocResponse(cmd, TcpUtils::POSITIVE_RESPONSE);
-            error_code = TcpUtils::POSITIVE_RESPONSE;
-            // TODO: notify OCR Module
-            notifyFileAvailable(mFile.filepath);
-        }
-        else
-        {
-            //buffer = TcpUtils::allocResponse(cmd, TcpUtils::NEGATIVE_RESPONSE_RESEND);
-            error_code = TcpUtils::NEGATIVE_RESPONSE_RESEND_ALL;
-//            qDebug() << "Download file " << mFile.filepath.c_str() << " error. Need to download again";
-            std::cout << "Download file " << mFile.filepath.c_str() << " error. Need to download again" << std::endl;
-        }
-        // Change state to start download again
-        mState = TcpUtils::START_DOWNLOAD;
-        break;
-    case TcpUtils::START_DOWNLOAD:
-        // fall-through
-    case TcpUtils::END_DOWNLOAD: // Never turn to this state
-        // fall-through
-    default:
-        //buffer = TcpUtils::allocResponse(cmd, TcpUtils::NEGATIVE_RESPONSE_RESEND);
-        error_code = TcpUtils::NEGATIVE_RESPONSE_NOTSEND; // Critical error ???
-        break;
-    }
-    TcpUtils::makeTxPackage(txPackage, cmd, error_code);
-}
-
-void TcpServer::notifyFileAvailable(const std::string filepath)
-{
-    // TODO: pushTxQueue
-    std::cout << "File  " << filepath << " download successful" << std::endl;
-}
-
-
-
-
-
-
-
-
-
-
 
 
 

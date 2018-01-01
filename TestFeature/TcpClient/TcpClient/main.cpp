@@ -1,19 +1,14 @@
 #include <iostream>
-#include "TcpUtils/TcpUtils.h"
+#include "TcpClient/TcpClient.h"
 
 using namespace std;
 
 int main()
 {
-    string filepath1 = "/home/cuongdh8/file.ac.png";
-    string filepath2 = "/home/cuongdh8/file.ac.PNG1";
-    if(TcpUtils::compareStringInsensitive(TcpUtils::getFileExt(filepath1), TcpUtils::getFileExt(filepath2)))
-    {
-        std::cout << "Equal" << std::endl;
-    }
-    else
-    {
-        std::cout << "not equal" << std::endl;
-    }
+    TcpClient test;
+    test.setDefaultInterface("wlpSSSS8s0");
+    test.connectToServer("127.0.0.1", 8080);
+    test.sendFile("aaa.txt");
+    test.closeSock();
     return 0;
 }

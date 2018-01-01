@@ -126,5 +126,6 @@ void MainWindow::on_startThreadsButton_released()
         pTask = NULL;
     }
     pTask = new Task((OCR::ocr_type_t)ui->comboBox->currentIndex());
+    pTask->initParameter(8080,1);
     pTask->runAllTask();
 }

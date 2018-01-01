@@ -3,7 +3,6 @@
 
 #include "TaskThread.h"
 #include "TCP/TcpUtils/TcpUtils.h"
-#include <queue>
 
 class TcpServerTask: public TaskThread
 {
@@ -30,6 +29,8 @@ private:
     int mListenNum;
     TcpUtils::request_t mState;
     TcpUtils::file_t mFile;
+    std::string TCP_SYS_ROOT;
+    uint32_t remain_size;
 
 };
 
