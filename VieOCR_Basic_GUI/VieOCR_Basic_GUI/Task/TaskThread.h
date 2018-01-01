@@ -18,8 +18,8 @@ public:
 
     typedef struct
     {
-        std::string msg_id;
-        uint8_t data[256];
+        uint8_t msg_id[MSG_ID_LENGTH];
+        uint8_t data[MSG_DATA_LENGTH];
     } message_t;
 
     typedef struct

@@ -583,10 +583,8 @@ inline regmatch_t* TextObjectTTS::search_pattern(/*char * pattern,*/ regex_t* re
     reti = regexec(regex, src->c_str(), REGMATCH_MAX_SIZE, pmatch, REG_NOTBOL);
     if(reti){
         DEBUG_WARNING("Cannot match any expression, return code = %d", reti);
-        printf("NOK");
         return NULL;
     }
-    printf("OK");
     DEBUG_INFO("Found match expression at position %d",pmatch->rm_so);
     return pmatch;
 }

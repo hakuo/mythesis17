@@ -72,7 +72,7 @@ void OCRTask::TaskHandler()
         qDebug("----------------------3");
         memset(&txMsg, 0, sizeof(message_t));
         qDebug("----------------------4");
-        txMsg.msg_id = rxMsg.msg_id;
+        memcpy(txMsg.msg_id, rxMsg.msg_id, MSG_ID_LENGTH);
         qDebug("----------------------5");
         memcpy(txMsg.data, outTxt.c_str(), outTxt.length());
         qDebug("----------------------6");

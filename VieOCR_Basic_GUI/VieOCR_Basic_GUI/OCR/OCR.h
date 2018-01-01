@@ -15,15 +15,17 @@ public:
         OCR_TYPE_MAX,
     } ocr_type_t;
     virtual void run() = 0;
+    static bool loadImage(cv::Mat &image, const std::string imagePath);
+    void setInputPath(std::string str);
     std::string createTxt(std::string inputPath);
-
 protected:
     bool isRun;
     std::string OCR_SYS_ROOT;
     cv::Mat mImgInput;
     std::string mInputPath;
     std::string mTxtOutput;
-    bool loadImage(cv::Mat &image, std::string &storeStr, const std::string imagePath);
+    void setImgInput(cv::Mat img);
+    //void setInputPath(std::string str);
     void cvtGray2Bin(cv::Mat& outImage, cv::Mat inImage);
     void skewCorrector(cv::Mat& outImage, cv::Mat inImage);
     void extWords(std::vector<cv::Mat>& wordArray, cv::Mat image);

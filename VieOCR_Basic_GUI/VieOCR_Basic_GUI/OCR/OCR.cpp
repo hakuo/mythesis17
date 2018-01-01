@@ -5,16 +5,15 @@
 #include <hunspell/hunspell.hxx>
 #include "TCP/TcpUtils/TcpUtils.h"
 #include <QDebug>
+#include <stdlib.h>
 
 #define HUNSPELL_DIR "/hunspell"
-#define TESSDATA_DIR "/tesseract"
 
 OCR::OCR()
 {
     resetPath();
-    this->OCR_SYS_ROOT = std::string(getenv("TOOL_SYS_ROOT"));
-    std::string envPath = OCR_SYS_ROOT + TESSDATA_DIR;
-    setenv("TESSDATA_PREFIX", envPath.c_str(), 1);
+    OCR_SYS_ROOT = std::string(getenv("TOOL_SYS_ROOT"));
+    qDebug() << "OCR created";
 }
 
 
@@ -26,33 +25,38 @@ OCR::~OCR()
 std::string OCR::createTxt(std::string inputPath)
 {
     std::string ret = "";
-    if(this->loadImage(mImgInput, mInputPath, inputPath))   // TODO: loadImage, preprocessing
+    cv::Mat tmp;
+    if(this->loadImage(tmp, inputPath))   // TODO: loadImage, preprocessing
     {
-        this->genTxtPath(mInputPath, mTxtOutput);
+        this->setInputPath(inputPath);
+        this->setImgInput(tmp);
+        this->genTxtPath(mTxtOutput, mInputPath);
         this->run();
         while(isRun);
-        ret = this->getOutput();
-        this->resetPath();
+        ret = getOutput();
+        resetPath();
     }
     return ret;
 }
 
+void OCR::setImgInput(cv::Mat img)
+{
+    mImgInput = img.clone();
+}
+
+void OCR::setInputPath(std::string str)
+{
+     mInputPath = str;
+}
+
+
+
 // loadImg from image path
 // if load success => store imagePath to storeStr and store image
-bool OCR::loadImage(cv::Mat &image, std::string &storeStr,  const std::string imagePath)
+bool OCR::loadImage(cv::Mat &image, const std::string imagePath)
 {
-    bool ret;
     image = cv::imread(imagePath, CV_LOAD_IMAGE_GRAYSCALE);
-    if(image.data == NULL)
-    {
-        ret = false;
-    }
-    else
-    {
-        storeStr = imagePath;
-        ret = true;
-    }
-    return ret;
+    return (image.data == NULL) ? false : true;
 }
 
 //void cvtGray2Bin(cv::Mat& outImage, cv::Mat inImage)

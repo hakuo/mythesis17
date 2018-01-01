@@ -252,7 +252,7 @@ void TcpServerTask::notifyFileAvailable(const TcpUtils::file_t file)
         //strncpy(buffer, filepath.c_str(), filepath.length());
         message_t msg;
         memset(&msg, 0, sizeof(msg));
-        msg.msg_id = file.header.from;
+        memcpy(msg.msg_id, file.header.from.c_str(), file.header.from.length());
         strncpy((char *)msg.data, file.filepath.c_str(), file.filepath.length());
         pushMessageQueue(mQueue.txQueue, (char *)&msg, sizeof(msg));
     }

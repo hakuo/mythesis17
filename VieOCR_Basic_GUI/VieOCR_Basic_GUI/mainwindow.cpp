@@ -14,7 +14,6 @@ namespace Utility {
 void showImage(QLabel *imgWin, cv::Mat img)
 {
     //return imgWin->setPixmap(QPixmap::fromImage(QImage(img.data, img.cols, img.rows, img.step, QImage::Format_RGB888)).scaled(imgWin->width(), imgWin->height(), Qt::KeepAspectRatio));
-    setlocale (LC_ALL,"en_US.UTF-8");
     QImage qImg;
     cv::Mat RGBImg;
     if(img.channels()==3)
@@ -40,6 +39,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->statusBar->showMessage("Status");
+    pTask = NULL;
 }
 
 MainWindow::~MainWindow()
@@ -102,14 +102,12 @@ void MainWindow::on_TTSButton_released()
 
 void MainWindow::on_autoButton_released()
 {
-    setenv("TOOL_SYS_ROOT", ui->lineDataPath->text().toStdString().c_str(), 1);
-    Task taskinstance((OCR::ocr_type_t)ui->comboBox->currentIndex());
-    taskinstance.runAllTask();
 #if 1
     mqd_t queue = TaskThread::openTxQueue(OCR_QUEUE);
     TaskThread::message_t msg;
     memset(&msg, 0, sizeof(msg));
-    strncpy((char *)msg.data, ui->lineImgPath->text().toStdString().c_str(), ui->lineDataPath->text().toStdString().length());
+    std::string str = ui->lineImgPath->text().toStdString();
+    memcpy((char *)msg.data, str.c_str(), str.length());
     TaskThread::pushMessageQueue(queue, (char *)&msg, sizeof(msg));
     //TaskThread::closeMessageQueue(queue);
 #endif
@@ -120,5 +118,13 @@ void MainWindow::on_autoButton_released()
 
 void MainWindow::on_startThreadsButton_released()
 {
-
+    std::string database = ui->lineDataPath->text().toStdString();
+    setenv("TOOL_SYS_ROOT", database.c_str(), 1);
+    if(pTask)
+    {
+        delete pTask;
+        pTask = NULL;
+    }
+    pTask = new Task((OCR::ocr_type_t)ui->comboBox->currentIndex());
+    pTask->runAllTask();
 }

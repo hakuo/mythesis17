@@ -58,11 +58,12 @@ void TTSTask::TaskHandler()
     memcpy(&rxMsg, buffer, sizeof(message_t));
 
     std::string wavOut = mTTSinstance->createWav((char *)rxMsg.data);
-    if(wavOut == "")
+    if(wavOut != "")
     {
         memset(&txMsg, 0, sizeof(message_t));
-        txMsg.msg_id = rxMsg.msg_id;
+        memcpy(txMsg.msg_id, rxMsg.msg_id, MSG_ID_LENGTH);
         memcpy(txMsg.data, wavOut.c_str(), wavOut.length());
         pushMessageQueue(mQueue.txQueue, (char *)&txMsg, sizeof(message_t));
+        qDebug() << "done";
     }
 }

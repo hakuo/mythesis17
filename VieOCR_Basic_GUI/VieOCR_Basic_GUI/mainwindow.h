@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "common.h"
+#include "Task/Task.h"
 
 namespace Ui {
 class MainWindow;
@@ -31,6 +32,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    Task* pTask;
 
 //    training_feature_t getTrainingFeature();
 };

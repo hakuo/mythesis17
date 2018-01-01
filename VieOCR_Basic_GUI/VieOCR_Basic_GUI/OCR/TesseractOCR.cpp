@@ -12,10 +12,13 @@ using namespace cv::text;
 #define WHITE_LIST "aàáảãạăằắẳẵặâầấẩẫậbcdđeèéẻẽẹêềếểễệfghiìíỉĩịjklmnoòóỏõọôồốổỗộơờớởỡợpqrstuùúủũụưừứửữựvwxyzAÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬBCDĐEÈÉẺẼẸÊỀẾỂỄỆFGHIÌÍỈĨỊJKLMNOÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢPQRSTUÙÚỦŨỤƯỪỨỬỮỰVWXYZ0123456789.,"
 
 #define LANGUAGE "vie"
+#define TESSDATA_DIR "/tesseract"
 
 TesseractOCR::TesseractOCR()
 {
     qDebug() << "TesseractOCR created";
+    std::string envPath = OCR_SYS_ROOT + TESSDATA_DIR;
+    setenv("TESSDATA_PREFIX", envPath.c_str(), 1);
 }
 
 TesseractOCR::~TesseractOCR()
