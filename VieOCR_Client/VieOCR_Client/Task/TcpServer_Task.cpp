@@ -10,15 +10,17 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
-#include <QDebug>
+//#include <QDebug>
 
 TcpServerTask::TcpServerTask()
 {
+    TCP_SYS_ROOT = std::string(getenv("TOOL_SYS_ROOT"));
     mServerSock = -1;
     mQueue.txQueue = -1;
     mQueue.rxQueue = -1;
     mListenNum = -1;
     mListenPort = -1;
+    remain_size = 0;
 
 }
 
@@ -30,7 +32,7 @@ TcpServerTask::~TcpServerTask()
 
 bool TcpServerTask::readyToRun()
 {
-    sock_map.clear();
+    //sock_map.clear();
     mQueue.txQueue = openTxQueue(OCR_QUEUE);
     mState = TcpUtils::START_DOWNLOAD;
     return (mListenNum != -1) && (mListenPort != -1)
@@ -120,40 +122,43 @@ void TcpServerTask::closeSock(int &sockfd)
     sockfd = -1;
 }
 
-void TcpServerTask::handleMessage(int sock, const TcpUtils::tcp_pkg_t *rxPackge, TcpUtils::tcp_pkg_t *txPackge)
+void TcpServerTask::handleMessage(const TcpUtils::tcp_pkg_t *rxPackge, TcpUtils::tcp_pkg_t *txPackage)
 {
     switch (rxPackge->header.cmd) {
     case TcpUtils::START_DOWNLOAD:
-        startDownload(sock, rxPackge->data, txPackge);
+        startDownload(rxPackge->data, txPackage);
         break;
     case TcpUtils::TRANFER_FILE:
-        transferFile(rxPackge->data, txPackge);
+        transferFile(rxPackge->data, txPackage);
         break;
     case TcpUtils::END_DOWNLOAD:
-        endDownload(txPackge);
+        endDownload(txPackage);
         break;
     default:
         break;
     }
 }
 
-void TcpServerTask::startDownload(int sock, const uint8_t *data, TcpUtils::tcp_pkg_t *txPackage)
+void TcpServerTask::startDownload(const uint8_t *data, TcpUtils::tcp_pkg_t *txPackage)
 {
+    std::cout << "Start Download" << std::endl;
     TcpUtils::request_t cmd = TcpUtils::START_DOWNLOAD;
+    std::string tmp_dir = TCP_SYS_ROOT + TMP_PATH;
     TcpUtils::response_t error_code;
     switch (mState) {
     case TcpUtils::START_DOWNLOAD:
+        memset(&mFile, 0, sizeof(mFile));
         memcpy(&mFile.header, data, sizeof(mFile.header));
         std::cout << "file_type: " << (int)mFile.header.type << std::endl;
         std::cout << "file_size: " << (int)mFile.header.size << std::endl;
         std::cout << "file_crc: " << (int)mFile.header.crc << std::endl;
-        sock_map[sock].port = mFile.header.recv_port;
-
-        TcpUtils::genFilePath(mFile, DOWNLOAD_FOLDER);
+        //std::cout << "from: " << mFile.header.from << std::endl;
+        TcpUtils::genFilePath(mFile, tmp_dir.c_str());
         if(TcpUtils::checkAvailableToWrite(mFile))
         {
             //buffer = TcpUtils::allocResponse(cmd, TcpUtils::POSITIVE_RESPONSE);
             //package = TcpUtils::makeTxPackage(cmd, TcpUtils::POSITIVE_RESPONSE);
+            remain_size = mFile.header.size;
             error_code = TcpUtils::POSITIVE_RESPONSE;
             mState = TcpUtils::TRANFER_FILE;
         }
@@ -179,12 +184,15 @@ void TcpServerTask::startDownload(int sock, const uint8_t *data, TcpUtils::tcp_p
 
 void TcpServerTask::transferFile(const uint8_t *data, TcpUtils::tcp_pkg_t *txPackage)
 {
+    std::cout << "tranfer file" << std::endl;
     TcpUtils::request_t cmd = TcpUtils::TRANFER_FILE;
     TcpUtils::response_t error_code;
+    uint32_t writelen = (remain_size > TCP_BUFFER_SIZE) ? TCP_BUFFER_SIZE : remain_size;
     switch (mState) {
     case TcpUtils::TRANFER_FILE:
-        if(TcpUtils::writeFileToMemory(mFile.filepath, data, TCP_BUFFER_SIZE))
+        if(TcpUtils::writeFileToMemory(mFile.filepath, data, writelen))
         {
+            remain_size -= writelen;
             //buffer = allocResponse(cmd, TcpUtils::POSITIVE_RESPONSE);
             error_code = TcpUtils::POSITIVE_RESPONSE;
         }
@@ -209,6 +217,7 @@ void TcpServerTask::transferFile(const uint8_t *data, TcpUtils::tcp_pkg_t *txPac
 
 void TcpServerTask::endDownload(TcpUtils::tcp_pkg_t *txPackage)
 {
+    std::cout << "end Download" << std::endl;
     TcpUtils::response_t error_code;
     TcpUtils::request_t cmd = TcpUtils::END_DOWNLOAD;
     switch (mState) {
@@ -218,13 +227,13 @@ void TcpServerTask::endDownload(TcpUtils::tcp_pkg_t *txPackage)
             //buffer = allocResponse(cmd, TcpUtils::POSITIVE_RESPONSE);
             error_code = TcpUtils::POSITIVE_RESPONSE;
             // TODO: notify OCR Module
-            notifyFileAvailable(mFile.filepath);
+            notifyFileAvailable(mFile);
         }
         else
         {
             //buffer = TcpUtils::allocResponse(cmd, TcpUtils::NEGATIVE_RESPONSE_RESEND);
             error_code = TcpUtils::NEGATIVE_RESPONSE_RESEND_ALL;
-            qDebug() << "Download file " << mFile.filepath.c_str() << " error. Need to download again";
+//            qDebug() << "Download file " << mFile.filepath.c_str() << " error. Need to download again";
         }
         // Change state to start download again
         mState = TcpUtils::START_DOWNLOAD;
@@ -241,16 +250,20 @@ void TcpServerTask::endDownload(TcpUtils::tcp_pkg_t *txPackage)
     TcpUtils::makeTxPackage(txPackage, cmd, error_code);
 }
 
-void TcpServerTask::notifyFileAvailable(const std::string filepath)
+void TcpServerTask::notifyFileAvailable(const TcpUtils::file_t file)
 {
     // TODO: pushTxQueue
-    std::cout << "File  " << filepath << " download successful" << std::endl;
-    if(mQueue.txQueue != -1)
-    {
-        char buffer[MAX_MQUEUE_SIZE] = {0};
-        strncpy(buffer, filepath.c_str(), filepath.length());
-        pushMessageQueue(mQueue.txQueue, buffer, MAX_MQUEUE_SIZE);
-    }
+    std::cout << "File  " << file.filepath << " download successful" << std::endl;
+//    if(mQueue.txQueue != -1)
+//    {
+//        //char buffer[MAX_MQUEUE_SIZE] = {0};
+//        //strncpy(buffer, filepath.c_str(), filepath.length());
+//        message_t msg;
+//        memset(&msg, 0, sizeof(msg));
+//        memcpy(msg.msg_id, file.header.from.c_str(), file.header.from.length());
+//        strncpy((char *)msg.data, file.filepath.c_str(), file.filepath.length());
+//        pushMessageQueue(mQueue.txQueue, (char *)&msg, sizeof(msg));
+//    }
 }
 
 void TcpServerTask::ThreadLoop()
@@ -277,11 +290,6 @@ void TcpServerTask::TaskHandler()
     // Register server socket in polling structure
     fds[0].fd = mServerSock;
     fds[0].events = POLLIN;
-
-    sockaddr_in cli_addr;
-    socklen_t addr_len;
-
-    TcpUtils::sock_info_t cli_info;
 
     while(!mThreadTerminate)
     {
@@ -326,7 +334,7 @@ void TcpServerTask::TaskHandler()
                 // socket before we loop back and call poll() again.
                 do
                 {
-                    client_sock = accept(mServerSock, (sockaddr *)&cli_addr, &addr_len);
+                    client_sock = accept(mServerSock, NULL, NULL);
                     if(client_sock < 0)
                     {
                         if(errno != EWOULDBLOCK)
@@ -338,11 +346,8 @@ void TcpServerTask::TaskHandler()
                         break; // continue to accept if error_type is EWOULDBLOCK
                     }
 
-                    // Add new incoming connection to the pollfd structure
-                    cli_info.address = inet_ntoa(cli_addr.sin_addr);
-                    // TODO: Missing port
-                    std::cout << "New incoming connection - " << (int)client_sock << " - " << cli_info.address << std::endl;
-                    sock_map.insert(std::pair<int, TcpUtils::sock_info_t>(client_sock,cli_info));
+                    std::cout << "New incoming connection - " << (int)client_sock << std::endl;
+
                     fds[nfds].fd = client_sock;
                     fds[nfds].events = POLLIN;
                     ++nfds;
@@ -371,6 +376,7 @@ void TcpServerTask::TaskHandler()
                     rc = -1;
                     if(rxBuffer != NULL)
                     {
+                        memset(rxBuffer, 0, sizeof(TcpUtils::tcp_pkg_t));
                         rc = recv(fds[i].fd, rxBuffer, TCP_BUFFER_SIZE, 0);
                     }
 
@@ -402,7 +408,7 @@ void TcpServerTask::TaskHandler()
                     }
 
                     // Handle data and send response to client
-                    handleMessage(fds[i].fd, rxBuffer, txBuffer);
+                    handleMessage(rxBuffer, txBuffer);
                     rc = -1;
                     if(txBuffer != NULL)
                     {

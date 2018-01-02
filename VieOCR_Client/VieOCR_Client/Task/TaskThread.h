@@ -18,8 +18,8 @@ public:
 
     typedef struct
     {
-        TcpUtils::sock_info_t msg_id;
-        uint8_t data[256];
+        uint8_t msg_id[MSG_ID_LENGTH];
+        uint8_t data[MSG_DATA_LENGTH];
     } message_t;
 
     typedef struct
@@ -31,17 +31,17 @@ public:
     virtual void run();
     virtual void stop();
     bool mThreadTerminate;
+    static mqd_t openTxQueue(const char* pName);
+    static mqd_t openRxQueue(const char* pName);
+    static mqd_t openMessageQueue(const char* pName, int32_t flag);
+    static void closeMessageQueue(mqd_t &mqQid);
+    static void pushMessageQueue(mqd_t mqQidDes, const char *pOutBuf, size_t szLen);
+    static ssize_t popMessageQueue(mqd_t mqQidFrom, char *pMsgBuf);
 
 protected:
     virtual bool readyToRun()=0;
     virtual void TaskHandler()=0;
     queue_info_t mQueue;
-    mqd_t openTxQueue(const char* pName);
-    mqd_t openRxQueue(const char* pName);
-    mqd_t openMessageQueue(const char* pName, int32_t flag);
-    void closeMessageQueue(mqd_t &mqQid);
-    void pushMessageQueue(mqd_t mqQidDes, const char *pOutBuf, size_t szLen);
-    ssize_t popMessageQueue(mqd_t mqQidFrom, char *pMsgBuf);
     virtual void ThreadLoop();
     bool isTaskRun;
 

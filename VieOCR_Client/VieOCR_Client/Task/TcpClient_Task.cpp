@@ -36,12 +36,12 @@ void TcpClientTask::TaskHandler()
     szLen = popMessageQueue(mQueue.rxQueue, (char *)buffer);
     if(szLen <= 0)
     {
-        //QDebug() << "OCRTask: Queue empty";
+//        qDebug() << "TcpClientTask: Queue empty";
         return;
     }
     memset(&rxMsg, 0, sizeof(message_t));
     memcpy(&rxMsg, buffer, sizeof(message_t));
-    pTcpClient->connectToServer(rxMsg.msg_id.address.c_str(), rxMsg.msg_id.port);
+    pTcpClient->connectToServer((char *)rxMsg.msg_id, TCP_PORT);
     pTcpClient->sendFile((char *)rxMsg.data);
     pTcpClient->closeSock();
 }
