@@ -12,8 +12,6 @@ Task::Task()
 Task::~Task()
 {
     delete pTcpServer;
-//    delete pOCR;
-//    delete pTTS;
     delete pTcpClient;
 }
 
@@ -26,8 +24,6 @@ void Task::initParameter(int tcpPort, int tcpListenNum)
 void Task::runAllTask()
 {
     pTcpServer->run();
-//    pOCR->run();
-//    pTTS->run();
     pTcpClient->run();
 }
 

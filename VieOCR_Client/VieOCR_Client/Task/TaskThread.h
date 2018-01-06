@@ -4,8 +4,7 @@
 #include "common.h"
 #include <mqueue.h>
 #include "TCP/TcpUtils/TcpUtils.h"
-#define OCR_QUEUE "/OCR_Queue"  // mqueue of OCR Tool
-#define TTS_QUEUE "/TTS_Queue"  // mqueue of TTS Tool
+#define SPK_QUEUE "/SPK_Queue"  // mqueue of Speaker
 #define TCP_QUEUE "/TCP_Queue"  // mqueue of TCP Client
 
 #define MAX_MQUEUE_SIZE 512
@@ -28,7 +27,7 @@ public:
         mqd_t rxQueue;
     }queue_info_t;
 
-    virtual void run();
+    void run();
     virtual void stop();
     bool mThreadTerminate;
     static mqd_t openTxQueue(const char* pName);
@@ -44,16 +43,11 @@ protected:
     queue_info_t mQueue;
     virtual void ThreadLoop();
     bool isTaskRun;
-
-    //bool popRxQueue(message_t& msg);
-    //void pushTxQueue(message_t msg);
+    pthread_t mThreadID;
 
 private:
-    pthread_t mThreadID;
     static TaskThread* m_me;
     static void* _thread_(void *arg);
-    //std::queue<message_t> txQueue;
-    //std::queue<message_t> rxQueue;
 };
 
 #endif // TASKTHREAD_H

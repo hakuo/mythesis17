@@ -51,7 +51,7 @@ void OCRTask::TaskHandler()
 {
     message_t txMsg;
     message_t rxMsg;
-    uint8_t buffer[MAX_MQUEUE_SIZE];
+    uint8_t buffer[MAX_MQUEUE_SIZE] = {0};
     ssize_t szLen;
 
     // Step 1: Check rxQueue to receive image path
@@ -61,21 +61,14 @@ void OCRTask::TaskHandler()
         qDebug() << "OCRTask: Queue empty";
         return;
     }
-    qDebug("----------------------1");
     memset(&rxMsg, 0, sizeof(message_t));
     memcpy(&rxMsg, buffer, sizeof(message_t));
-    qDebug("----------------------2");
     std::string outTxt = pOCRinstance->createTxt((char *)rxMsg.data);
-    qDebug("----------------------3");
     if(outTxt.length() > 0)
     {
-        qDebug("----------------------3");
         memset(&txMsg, 0, sizeof(message_t));
-        qDebug("----------------------4");
         memcpy(txMsg.msg_id, rxMsg.msg_id, MSG_ID_LENGTH);
-        qDebug("----------------------5");
         memcpy(txMsg.data, outTxt.c_str(), outTxt.length());
-        qDebug("----------------------6");
         pushMessageQueue(mQueue.txQueue, (char *)&txMsg, sizeof(message_t));
     }
 }

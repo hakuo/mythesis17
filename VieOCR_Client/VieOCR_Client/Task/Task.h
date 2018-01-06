@@ -14,13 +14,10 @@ public:
     void initParameter(int tcpPort, int tcpListenNum);
     bool isTaskRun(TaskThread* task);
     void runAllTask();
+
 private:
-//    OCRTask *pOCR;
-//    TTSTask *pTTS;
     TcpServerTask *pTcpServer;
     TcpClientTask *pTcpClient;
-
-
 };
 
 #endif // TASK_H

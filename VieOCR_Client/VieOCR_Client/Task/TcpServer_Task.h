@@ -9,10 +9,8 @@ class TcpServerTask: public TaskThread
 public:
     TcpServerTask();
     virtual ~TcpServerTask();
-
     void setListenPort(int portno);
     void setListenNum(int num);
-    //std::map<int, TcpUtils::sock_info_t> sock_map;
 private:
     virtual bool readyToRun();
     virtual void TaskHandler();
@@ -31,7 +29,6 @@ private:
     TcpUtils::file_t mFile;
     std::string TCP_SYS_ROOT;
     uint32_t remain_size;
-
 };
 
 #endif // TCPSERVERTASK_H

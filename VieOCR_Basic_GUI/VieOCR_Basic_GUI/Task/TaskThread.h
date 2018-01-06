@@ -28,8 +28,8 @@ public:
         mqd_t rxQueue;
     }queue_info_t;
 
-    virtual void run();
-    virtual void stop();
+    void run();
+    void stop();
     bool mThreadTerminate;
     static mqd_t openTxQueue(const char* pName);
     static mqd_t openRxQueue(const char* pName);

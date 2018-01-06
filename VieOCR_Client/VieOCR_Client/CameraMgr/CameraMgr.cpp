@@ -7,7 +7,11 @@ CameraMgr::CameraMgr()
 
 CameraMgr::~CameraMgr()
 {
-
+    stopCam();
+    if(isCamOpen())
+    {
+        closeCam();
+    }
 }
 
 bool CameraMgr::openCam(int camno)

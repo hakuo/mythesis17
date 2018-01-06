@@ -10,14 +10,13 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
-#include <QDebug>
 
 TcpServerTask::TcpServerTask()
 {
     TCP_SYS_ROOT = std::string(getenv("TOOL_SYS_ROOT"));
     mServerSock = -1;
-    mQueue.txQueue = -1;
     mQueue.rxQueue = -1;
+    mQueue.txQueue = openTxQueue(OCR_QUEUE);
     mListenNum = -1;
     mListenPort = -1;
     remain_size = 0;
@@ -33,7 +32,7 @@ TcpServerTask::~TcpServerTask()
 bool TcpServerTask::readyToRun()
 {
     //sock_map.clear();
-    mQueue.txQueue = openTxQueue(OCR_QUEUE);
+
     mState = TcpUtils::START_DOWNLOAD;
     return (mListenNum != -1) && (mListenPort != -1)
             && (mQueue.txQueue != -1) && (initSock(mListenPort, mListenNum));
@@ -233,7 +232,7 @@ void TcpServerTask::endDownload(TcpUtils::tcp_pkg_t *txPackage)
         {
             //buffer = TcpUtils::allocResponse(cmd, TcpUtils::NEGATIVE_RESPONSE_RESEND);
             error_code = TcpUtils::NEGATIVE_RESPONSE_RESEND_ALL;
-            qDebug() << "Download file " << mFile.filepath.c_str() << " error. Need to download again";
+            std::cout << "Download file " << mFile.filepath.c_str() << " error. Need to download again" << std::endl;
         }
         // Change state to start download again
         mState = TcpUtils::START_DOWNLOAD;

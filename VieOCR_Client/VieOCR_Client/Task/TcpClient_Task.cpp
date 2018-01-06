@@ -36,7 +36,6 @@ void TcpClientTask::TaskHandler()
     szLen = popMessageQueue(mQueue.rxQueue, (char *)buffer);
     if(szLen <= 0)
     {
-//        qDebug() << "TcpClientTask: Queue empty";
         return;
     }
     memset(&rxMsg, 0, sizeof(message_t));

@@ -2,8 +2,8 @@
 
 TcpClientTask::TcpClientTask()
 {
-    mQueue.rxQueue = -1;
-    pTcpClient = NULL;
+    mQueue.rxQueue = openRxQueue(TCP_QUEUE);
+    pTcpClient = new TcpClient;
 }
 
 TcpClientTask::~TcpClientTask()
@@ -13,16 +13,12 @@ TcpClientTask::~TcpClientTask()
         delete pTcpClient;
         pTcpClient = NULL;
     }
+    closeMessageQueue(mQueue.rxQueue);
     mq_unlink(TCP_QUEUE);
 }
 
 bool TcpClientTask::readyToRun()
 {
-    mQueue.rxQueue = openRxQueue(TCP_QUEUE);
-    if(pTcpClient == NULL)
-    {
-        pTcpClient = new TcpClient;
-    }
     return (mQueue.rxQueue != -1) && (pTcpClient != NULL);
 }
 

@@ -14,11 +14,17 @@
 TcpClient::TcpClient()
 {
     mClientSock = -1;
+    mInterface = "";
 }
 
 TcpClient::~TcpClient()
 {
     closeSock(mClientSock);
+}
+
+void TcpClient::setDefaultInterface(std::string interface)
+{
+    mInterface = interface;
 }
 
 bool TcpClient::connectToServer(const char *serv_addr_str, uint16_t portno)
@@ -95,6 +101,7 @@ bool TcpClient::sendFile(const std::string filepath)
     file_info.crc = TcpUtils::calcFileCRC(filepath);
     file_info.size = szLen;
     file_info.type = TcpUtils::getFileType(filepath);
+    file_info.from = TcpUtils::getIp(TCP_INTERFACE);
 
     TcpUtils::tcp_pkg_t *txBuffer = new TcpUtils::tcp_pkg_t;
     TcpUtils::tcp_pkg_t *rxBuffer = new TcpUtils::tcp_pkg_t;

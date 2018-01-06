@@ -5,6 +5,9 @@ CONFIG -= qt
 
 SOURCES += \
     CameraMgr/CameraMgr.cpp \
+    Sound/Sound.cpp \
+    Task/CameraTask.cpp \
+    Task/SpeakerTask.cpp \
     Task/Task.cpp \
     Task/TaskThread.cpp \
     Task/TcpClient_Task.cpp \
@@ -16,15 +19,20 @@ SOURCES += \
 
 HEADERS += \
     CameraMgr/CameraMgr.h \
+    Sound/Sound.h \
+    Task/CameraTask.h \
+    Task/SpeakerTask.h \
     Task/Task.h \
     Task/TaskThread.h \
     Task/TcpClient_Task.h \
     Task/TcpServer_Task.h \
     TCP/TcpClient/TcpClient.h \
     TCP/TcpUtils/TcpUtils.h \
-    ConsoleMenu.h \
-    common.h
+    common.h \
+    ConsoleMenu.h
+
 
 LIBS += `pkg-config opencv --cflags --libs`
 LIBS += -lpthread
 LIBS += -lrt        # Message Queue
+LIBS += -lasound

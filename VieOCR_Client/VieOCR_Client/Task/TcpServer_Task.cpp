@@ -10,7 +10,6 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
-//#include <QDebug>
 
 TcpServerTask::TcpServerTask()
 {
@@ -33,7 +32,7 @@ TcpServerTask::~TcpServerTask()
 bool TcpServerTask::readyToRun()
 {
     //sock_map.clear();
-    mQueue.txQueue = openTxQueue(OCR_QUEUE);
+    mQueue.txQueue = openTxQueue(SPK_QUEUE);
     mState = TcpUtils::START_DOWNLOAD;
     return (mListenNum != -1) && (mListenPort != -1)
             && (mQueue.txQueue != -1) && (initSock(mListenPort, mListenNum));
@@ -152,7 +151,7 @@ void TcpServerTask::startDownload(const uint8_t *data, TcpUtils::tcp_pkg_t *txPa
         std::cout << "file_type: " << (int)mFile.header.type << std::endl;
         std::cout << "file_size: " << (int)mFile.header.size << std::endl;
         std::cout << "file_crc: " << (int)mFile.header.crc << std::endl;
-        //std::cout << "from: " << mFile.header.from << std::endl;
+        std::cout << "from: " << mFile.header.from << std::endl;
         TcpUtils::genFilePath(mFile, tmp_dir.c_str());
         if(TcpUtils::checkAvailableToWrite(mFile))
         {
@@ -233,7 +232,7 @@ void TcpServerTask::endDownload(TcpUtils::tcp_pkg_t *txPackage)
         {
             //buffer = TcpUtils::allocResponse(cmd, TcpUtils::NEGATIVE_RESPONSE_RESEND);
             error_code = TcpUtils::NEGATIVE_RESPONSE_RESEND_ALL;
-//            qDebug() << "Download file " << mFile.filepath.c_str() << " error. Need to download again";
+            std::cout << "Download file " << mFile.filepath.c_str() << " error. Need to download again" << std::endl;
         }
         // Change state to start download again
         mState = TcpUtils::START_DOWNLOAD;
@@ -254,16 +253,16 @@ void TcpServerTask::notifyFileAvailable(const TcpUtils::file_t file)
 {
     // TODO: pushTxQueue
     std::cout << "File  " << file.filepath << " download successful" << std::endl;
-//    if(mQueue.txQueue != -1)
-//    {
-//        //char buffer[MAX_MQUEUE_SIZE] = {0};
-//        //strncpy(buffer, filepath.c_str(), filepath.length());
-//        message_t msg;
-//        memset(&msg, 0, sizeof(msg));
-//        memcpy(msg.msg_id, file.header.from.c_str(), file.header.from.length());
-//        strncpy((char *)msg.data, file.filepath.c_str(), file.filepath.length());
-//        pushMessageQueue(mQueue.txQueue, (char *)&msg, sizeof(msg));
-//    }
+    if(mQueue.txQueue != -1)
+    {
+        //char buffer[MAX_MQUEUE_SIZE] = {0};
+        //strncpy(buffer, filepath.c_str(), filepath.length());
+        message_t msg;
+        memset(&msg, 0, sizeof(msg));
+        memcpy(msg.msg_id, file.header.from.c_str(), file.header.from.length());
+        strncpy((char *)msg.data, file.filepath.c_str(), file.filepath.length());
+        pushMessageQueue(mQueue.txQueue, (char *)&msg, sizeof(msg));
+    }
 }
 
 void TcpServerTask::ThreadLoop()
