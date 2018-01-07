@@ -255,8 +255,6 @@ void TcpServerTask::notifyFileAvailable(const TcpUtils::file_t file)
     std::cout << "File  " << file.filepath << " download successful" << std::endl;
     if(mQueue.txQueue != -1)
     {
-        //char buffer[MAX_MQUEUE_SIZE] = {0};
-        //strncpy(buffer, filepath.c_str(), filepath.length());
         message_t msg;
         memset(&msg, 0, sizeof(msg));
         memcpy(msg.msg_id, file.header.from.c_str(), file.header.from.length());
