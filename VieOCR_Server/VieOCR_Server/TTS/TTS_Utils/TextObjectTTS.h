@@ -18,7 +18,6 @@
 #include <glib.h>
 #include <vector>
 #include <tr1/unordered_map>
-#include "debug.h"
 #include "config.h"
 
 #define REGMATCH_MAX_SIZE	10

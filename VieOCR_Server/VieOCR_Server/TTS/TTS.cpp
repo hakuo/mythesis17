@@ -8,7 +8,6 @@
 #include "TTS_Utils/TextObjectTTS.h"
 #include "TTS_Utils/UnitSelector.h"
 #include "TTS_Utils/Sound.h"
-#include "TTS_Utils/debug.h"
 #include "TCP/TcpUtils/TcpUtils.h"
 
 namespace iHearTech {
@@ -19,7 +18,7 @@ TTS::TTS() {
     this->text_obj = new TextObjectTTS();
     this->unit_sel = new UnitSelector();
     if(unit_sel->restoreMaps() != 0){
-        DEBUG_WARNING("Cannot unserialize hash maps. Re-init hash maps");
+        //DEBUG_WARNING("Cannot unserialize hash maps. Re-init hash maps");
         unit_sel->initMaps();
         unit_sel->storeMaps();
     }
@@ -112,12 +111,12 @@ std::string TTS::createWav(const char* file_path)
 }
 
 void TTS::outputUnresolvedList(std::string file_path){
-    DEBUG_INFO("Output unresolved word list to file: %s", file_path.c_str());
+    //DEBUG_INFO("Output unresolved word list to file: %s", file_path.c_str());
     if(unit_sel != NULL){
         unit_sel->enable_unresolved_words_output = true;
         unit_sel->outputUnresolvedListToFile(file_path);
     }else{
-        DEBUG_ERROR("Un-initialized unit selector object!");
+        //DEBUG_ERROR("Un-initialized unit selector object!");
     }
 }
 

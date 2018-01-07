@@ -56,9 +56,9 @@ TextObjectTTS::~TextObjectTTS(){
 
 // Run normalize process on internal string
 void TextObjectTTS::normalize(){
-    DEBUG_INFO("Start normalize process");
+    //DEBUG_INFO("Start normalize process");
     if(this->inputStr.empty()){
-        DEBUG_ERROR("Input string is empty");
+        //DEBUG_ERROR("Input string is empty");
         return;
     }
 
@@ -70,11 +70,11 @@ void TextObjectTTS::normalize(){
     // CuongDH8: fix bug regex overflow by adding regexHandle function
     regexHandle(&temp);
     this->outputStr = temp;
-    DEBUG_INFO("Store normalize string to ./text.nml");
+    //DEBUG_INFO("Store normalize string to ./text.nml");
     std::ofstream ofs("./text.nml", std::ofstream::out);
     ofs << this->outputStr;
     ofs.close();
-    DEBUG_INFO("End of normalize process");
+    //DEBUG_INFO("End of normalize process");
 }
 
 // CuongDH8
@@ -86,10 +86,10 @@ void TextObjectTTS::regexHandle(std::string *src)
     regmatch_t pmatch[REGMATCH_MAX_SIZE];
     std::vector<pattern_t>::iterator it;
     for(it = regexPattern.begin(); it != regexPattern.end(); it++){
-        DEBUG_INFO("Compiling regex pattern \"%s\"", it->pattern);
+        //DEBUG_INFO("Compiling regex pattern \"%s\"", it->pattern);
         reti = regcomp(&regex, it->pattern, REG_EXTENDED);
         if(reti){
-            DEBUG_ERROR("Cannot compile regex pattern, return code = %d", reti);
+            //DEBUG_ERROR("Cannot compile regex pattern, return code = %d", reti);
         }else{
             // CuongDH8: remove (char *)it->pattern
             while(search_pattern(/*(char *)it->pattern,*/ &regex, src, pmatch)!=NULL){
@@ -97,9 +97,9 @@ void TextObjectTTS::regexHandle(std::string *src)
                 // TODO: regex should be compile only one time
                 it->handler(src, pmatch);
             }
-            DEBUG_INFO("Freeing allocated regex");
+            //DEBUG_INFO("Freeing allocated regex");
             regfree(&regex);
-            DEBUG_INFO("Regex freed");
+            //DEBUG_INFO("Regex freed");
         }
     }
 }
@@ -114,15 +114,15 @@ std::string TextObjectTTS::getOutputStr(){
 
 // Download webpage and extract text from it
 bool TextObjectTTS::getTextFromUrl(std::string url){
-    DEBUG_INFO("Getting news content from URL");
+    //DEBUG_INFO("Getting news content from URL");
     int res = 0;
     regex_t regex1, regex2;
     regmatch_t pmatch[3];
     this->inputStr.clear();
     char *root = getenv("TOOL_SYS_ROOT");
     if(root == NULL){
-        printf("%sTextObjectTTS::getTextFromUrl: TOOL_SYS_ROOT variable is not set!\n"
-                "Abort operation...%s\n",KRED,KNRM);
+        //printf("%sTextObjectTTS::getTextFromUrl: TOOL_SYS_ROOT variable is not set!\n"
+        //        "Abort operation...%s\n",KRED,KNRM);
         return false;
     }
     std::string TTS_SYS_ROOT(root);
@@ -133,20 +133,20 @@ bool TextObjectTTS::getTextFromUrl(std::string url){
     std::ifstream ifs(TTS_SYS_ROOT + "news.html");
     std::ofstream ofs(TTS_SYS_ROOT + "news.txt");
     if(!ifs.is_open()){
-        DEBUG_ERROR("Error while download web page or permission denied");
+        //DEBUG_ERROR("Error while download web page or permission denied");
         this->_good = false;
         return false;
     }
     std::string str((std::istreambuf_iterator<char>(ifs)),
             (std::istreambuf_iterator<char>()));
     if(str.empty()){
-        DEBUG_ERROR("HTML file is empty");
+        //DEBUG_ERROR("HTML file is empty");
         return false;
     }
     res += regcomp(&regex1, "((<p class=\"MsoNormal\">(<[^<>]>)*)|<p>|(<p class=\"txt-head\">TT - )|<p class=\"txt-head\">TTO - )([[:alnum:]]|Ă|Â|Ê|Ơ|Ô|Ư|Đ|[\"])", REG_EXTENDED);
     res += regcomp(&regex2, "</p>", REG_EXTENDED);
     if(res){
-        DEBUG_ERROR("Cannot compile regex pattern, return now.");
+        //DEBUG_ERROR("Cannot compile regex pattern, return now.");
         this->_good = false;
         return false;
     }
@@ -168,7 +168,7 @@ bool TextObjectTTS::getTextFromUrl(std::string url){
     ofs << this->inputStr;
     delete[] cptr;
     //remove((TTS_SYS_ROOT + "/news.html").c_str());
-    DEBUG_INFO("Store news content in file %s", (TTS_SYS_ROOT + "news.txt").c_str());
+    //DEBUG_INFO("Store news content in file %s", (TTS_SYS_ROOT + "news.txt").c_str());
     return true;
 }
 
@@ -179,7 +179,7 @@ bool TextObjectTTS::good(){
 // Private methods
 //***********************************************************
 std::string* TextObjectTTS::normalize_date_1(std::string *src, regmatch_t *pmatch){
-    DEBUG_INFO("normalize_date_1 is called");
+    //DEBUG_INFO("normalize_date_1 is called");
     std::string temp;
     std::string num_string;
     int num;
@@ -192,12 +192,12 @@ std::string* TextObjectTTS::normalize_date_1(std::string *src, regmatch_t *pmatc
     num = atoi(src->c_str() + pmatch[4].rm_so);
     temp.append(*normalize_number(&num_string, num));
     src->replace(pmatch[0].rm_so, pmatch[0].rm_eo - pmatch[0].rm_so, temp);
-    DEBUG_INFO("Normalized string is %s",temp.c_str());
+    //DEBUG_INFO("Normalized string is %s",temp.c_str());
     return src;
 }
 
 std::string* TextObjectTTS::normalize_date_2(std::string *src, regmatch_t *pmatch){
-    DEBUG_INFO("normalize_date_2 is called");
+    //DEBUG_INFO("normalize_date_2 is called");
     std::string temp;
     std::string num_string;
     int num;
@@ -210,12 +210,12 @@ std::string* TextObjectTTS::normalize_date_2(std::string *src, regmatch_t *pmatc
     num = atoi(src->c_str() + pmatch[6].rm_so);
     temp.append(*normalize_number(&num_string, num));
     src->replace(pmatch[0].rm_so, pmatch[0].rm_eo - pmatch[0].rm_so, temp);
-    DEBUG_INFO("Normalized string is %s", temp.c_str());
+    //DEBUG_INFO("Normalized string is %s", temp.c_str());
     return src;
 }
 
 std::string* TextObjectTTS::normalize_date_3(std::string *src, regmatch_t *pmatch){
-    DEBUG_INFO("normalize_date_3 is called");
+    //DEBUG_INFO("normalize_date_3 is called");
     std::string temp;
     std::string num_string;
     int num;
@@ -228,12 +228,12 @@ std::string* TextObjectTTS::normalize_date_3(std::string *src, regmatch_t *pmatc
     num = atoi(src->c_str() + pmatch[6].rm_so);
     temp.append(*normalize_number(&num_string, num));
     src->replace(pmatch[0].rm_so, pmatch[0].rm_eo - pmatch[0].rm_so, temp);
-    DEBUG_INFO("Normalized string is %s", temp.c_str());
+    //DEBUG_INFO("Normalized string is %s", temp.c_str());
     return src;
 }
 
 std::string* TextObjectTTS::normalize_date_4(std::string *src, regmatch_t *pmatch){
-    DEBUG_INFO("normalize_date_4 is called");
+    //DEBUG_INFO("normalize_date_4 is called");
     std::string temp;
     std::string num_string;
     int num;
@@ -244,12 +244,12 @@ std::string* TextObjectTTS::normalize_date_4(std::string *src, regmatch_t *pmatc
     num = atoi(src->c_str() + pmatch[4].rm_so);
     temp.append(*normalize_number(&num_string, num));
     src->replace(pmatch[0].rm_so, pmatch[0].rm_eo - pmatch[0].rm_so, temp);
-    DEBUG_INFO("Normalized string is %s", temp.c_str());
+    //DEBUG_INFO("Normalized string is %s", temp.c_str());
     return src;
 }
 
 std::string* TextObjectTTS::normalize_date_5(std::string *src, regmatch_t *pmatch){
-    DEBUG_INFO("normalize_date_4 is called");
+    //DEBUG_INFO("normalize_date_4 is called");
     std::string temp;
     std::string num_string;
     int num;
@@ -264,12 +264,12 @@ std::string* TextObjectTTS::normalize_date_5(std::string *src, regmatch_t *pmatc
     num = atoi(src->c_str() + pmatch[3].rm_so);
     temp.append(*normalize_number(&num_string, num));
     src->replace(pmatch[0].rm_so, pmatch[0].rm_eo - pmatch[0].rm_so, temp);
-    DEBUG_INFO("Normalized string is %s", temp.c_str());
+    //DEBUG_INFO("Normalized string is %s", temp.c_str());
     return src;
 }
 
 std::string* TextObjectTTS::normalize_speed(std::string *src, regmatch_t *pmatch){
-    DEBUG_INFO("normalized_speed is called");
+    //DEBUG_INFO("normalized_speed is called");
     std::string num_string;
     int num;
     num = atoi(src->c_str() + pmatch[1].rm_so);
@@ -282,7 +282,7 @@ std::string* TextObjectTTS::normalize_speed(std::string *src, regmatch_t *pmatch
 }
 
 std::string* TextObjectTTS::normalize_rank(std::string *src, regmatch_t *pmatch){
-    DEBUG_INFO("normalized_rank is called");
+    //DEBUG_INFO("normalized_rank is called");
     std::string num_string;
     int num;
     num = atoi(src->c_str() + pmatch[2].rm_so);
@@ -298,7 +298,7 @@ std::string* TextObjectTTS::normalize_rank(std::string *src, regmatch_t *pmatch)
 }
 
 std::string* TextObjectTTS::normalize_time(std::string *src, regmatch_t *pmatch){
-    DEBUG_INFO("normalize_time is called");
+    //DEBUG_INFO("normalize_time is called");
     std::string temp;
     std::string num_string;
     int num;
@@ -318,12 +318,12 @@ std::string* TextObjectTTS::normalize_time(std::string *src, regmatch_t *pmatch)
         }
     }
     src->replace(pmatch[0].rm_so, pmatch[0].rm_eo - pmatch[0].rm_so, temp);
-    DEBUG_INFO("Normalized string is %s", temp.c_str());
+    //DEBUG_INFO("Normalized string is %s", temp.c_str());
     return src;
 }
 
 std::string* TextObjectTTS::normalize_snum(std::string *src, regmatch_t *pmatch){
-    DEBUG_INFO("normalize_snum is called");
+    //DEBUG_INFO("normalize_snum is called");
     std::string temp;
     std::string num_string;
     int num;
@@ -337,24 +337,24 @@ std::string* TextObjectTTS::normalize_snum(std::string *src, regmatch_t *pmatch)
         temp.append(*normalize_number(&num_string, num));
     }
     src->replace(pmatch[0].rm_so, pmatch[0].rm_eo - pmatch[0].rm_so, temp);
-    DEBUG_INFO("Normalized string is %s", temp.c_str());
+    //DEBUG_INFO("Normalized string is %s", temp.c_str());
     return src;
 }
 
 std::string* TextObjectTTS::normalize_remove(std::string *src, regmatch_t *pmatch){
-    DEBUG_INFO("normalize_remove is called");
+    //DEBUG_INFO("normalize_remove is called");
     src->replace(pmatch[0].rm_so, pmatch[0].rm_eo - pmatch[0].rm_so, " ");
     return src;
 }
 
 std::string* TextObjectTTS::normalize_rmduplicate(std::string *src, regmatch_t *pmatch){
-    DEBUG_INFO("Remove excessive blanks and $SP");
+    //DEBUG_INFO("Remove excessive blanks and $SP");
     src->erase(pmatch[0].rm_so, pmatch[0].rm_eo - pmatch[0].rm_so - 1);
     return src;
 }
 
 std::string* TextObjectTTS::normalize_size(std::string *src, regmatch_t *pmatch){
-    DEBUG_INFO("normalize_size is called");
+    //DEBUG_INFO("normalize_size is called");
     std::string temp;
     std::string num_string;
     int num;
@@ -407,13 +407,13 @@ std::string* TextObjectTTS::normalize_size(std::string *src, regmatch_t *pmatch)
         }
     }
     src->replace(pmatch[0].rm_so, pmatch[0].rm_eo - pmatch[0].rm_so, temp);
-    DEBUG_INFO("Normalized string is %s", temp.c_str());
+    //DEBUG_INFO("Normalized string is %s", temp.c_str());
     return src;
 }
 
 std::string* TextObjectTTS::normalize_numcomma(std::string *src, regmatch_t *pmatch){
     int num;
-    DEBUG_INFO("normalize_numcomma is called");
+    //DEBUG_INFO("normalize_numcomma is called");
     std::string num_string;
     std::string temp;
     num = atoi(src->c_str() + pmatch[1].rm_so);
@@ -421,7 +421,7 @@ std::string* TextObjectTTS::normalize_numcomma(std::string *src, regmatch_t *pma
     num = atoi(src->c_str() + pmatch[2].rm_so);
     temp.append(*normalize_number(&num_string, num));
     src->replace(pmatch[0].rm_so, pmatch[0].rm_eo - pmatch[0].rm_so, temp);
-    DEBUG_INFO("Normalized string is %s", temp.c_str());
+    //DEBUG_INFO("Normalized string is %s", temp.c_str());
     return src;
 }
 
@@ -432,7 +432,7 @@ std::string* TextObjectTTS::normalize_numdot(std::string *src, regmatch_t *pmatc
 
 std::string* TextObjectTTS::normalize_proportion(std::string *src, regmatch_t *pmatch){
     int num;
-    DEBUG_INFO("normalize_proportion is called");
+    //DEBUG_INFO("normalize_proportion is called");
     std::string num_string;
     std::string temp;
     num = atoi(src->c_str() + pmatch[1].rm_so);
@@ -440,12 +440,12 @@ std::string* TextObjectTTS::normalize_proportion(std::string *src, regmatch_t *p
     num = atoi(src->c_str() + pmatch[2].rm_so);
     temp.append(*normalize_number(&num_string, num));
     src->replace(pmatch[0].rm_so, pmatch[0].rm_eo - pmatch[0].rm_so, temp);
-    DEBUG_INFO("Normalized string is %s", temp.c_str());
+    //DEBUG_INFO("Normalized string is %s", temp.c_str());
     return src;
 }
 
 std::string* TextObjectTTS::normalize_cidis(std::string *src, regmatch_t *pmatch){
-    DEBUG_INFO("normalize_cidis is called");
+    //DEBUG_INFO("normalize_cidis is called");
     const char *cstr;
     cstr = src->c_str();
     switch(cstr[pmatch[2].rm_so]){
@@ -465,7 +465,7 @@ std::string* TextObjectTTS::normalize_cidis(std::string *src, regmatch_t *pmatch
         src->replace(pmatch[2].rm_so, pmatch[0].rm_eo - pmatch[2].rm_so, "HUYỆN ");
         break;
     }
-    DEBUG_INFO("Exit normalize_cidis");
+    //DEBUG_INFO("Exit normalize_cidis");
     return src;
 }
 
@@ -570,10 +570,10 @@ std::string* TextObjectTTS::normalize_3digits(std::string *dst, short num, short
 //********************************************************************************
 std::string* TextObjectTTS::normalize_uppercase(std::string *dst, std::string *src){
     // Upper case src string and store in dst string
-    DEBUG_INFO("Start uppercase string");
+    //DEBUG_INFO("Start uppercase string");
     dst->clear();
     dst->append(g_utf8_strup(src->c_str(), src->size()));
-    DEBUG_INFO("Finish uppercase string");
+    //DEBUG_INFO("Finish uppercase string");
     return dst;
 }
 
@@ -582,10 +582,10 @@ inline regmatch_t* TextObjectTTS::search_pattern(/*char * pattern,*/ regex_t* re
     int reti;
     reti = regexec(regex, src->c_str(), REGMATCH_MAX_SIZE, pmatch, REG_NOTBOL);
     if(reti){
-        DEBUG_WARNING("Cannot match any expression, return code = %d", reti);
+        //DEBUG_WARNING("Cannot match any expression, return code = %d", reti);
         return NULL;
     }
-    DEBUG_INFO("Found match expression at position %d",pmatch->rm_so);
+    //DEBUG_INFO("Found match expression at position %d",pmatch->rm_so);
     return pmatch;
 }
 } /* namespace iHearTech */

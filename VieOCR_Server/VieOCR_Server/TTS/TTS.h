@@ -10,7 +10,6 @@
 #include <string>
 #include <stdio.h>
 #include "TTS_Utils/TextObjectTTS.h"
-#include "TTS_Utils/debug.h"
 #include "TTS_Utils/TextObjectTTS.h"
 #include "TTS_Utils/UnitSelector.h"
 #include "common.h"
@@ -29,7 +28,6 @@ public:
     void sayFile(const std::string file_path);
     void sayFile(FILE *pFile);
     std::string createWav(const char *file_path);
-    //void outputWav(const char* file_path);
     void outputUnresolvedList(std::string file_path);
     void enableUnresolvedList(bool enable);
     bool play_enable;

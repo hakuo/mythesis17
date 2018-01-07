@@ -24,19 +24,6 @@ SOURCES += main.cpp \
     TTS/TTS_Utils/TextObjectTTS.cpp \
     TTS/TTS_Utils/UnitSelector.cpp \
     TTS/TTS.cpp \
-    TTS/TTS_Utils/debug.c
-
-LIBS += -lpthread -ltesseract
-LIBS += `pkg-config opencv --cflags --libs`
-LIBS += -lasound -lglib-2.0
-LIBS += -lrt        # Message Queue
-LIBS += -lhunspell-1.6
-
-
-INCLUDEPATH += /usr/include/glib-2.0/ \
-    /usr/lib/x86_64-linux-gnu/glib-2.0/include/ \
-
-DEFINES += HAVE_TESSERACT
 
 HEADERS += \
     OCR/OCR_Utils/include/text/erfilter.hpp \
@@ -58,9 +45,20 @@ HEADERS += \
     TCP/TcpClient/TcpClient.h \
     TCP/TcpUtils/TcpUtils.h \
     TTS/TTS_Utils/config.h \
-    TTS/TTS_Utils/debug.h \
     TTS/TTS_Utils/Sound.h \
     TTS/TTS_Utils/TextObjectTTS.h \
     TTS/TTS_Utils/UnitSelector.h \
     TTS/TTS.h \
     common.h
+
+LIBS += -lpthread -ltesseract
+LIBS += `pkg-config opencv --cflags --libs`
+LIBS += -lasound -lglib-2.0
+LIBS += -lrt        # Message Queue
+LIBS += -lhunspell-1.6
+
+
+INCLUDEPATH += /usr/include/glib-2.0/ \
+    /usr/lib/x86_64-linux-gnu/glib-2.0/include/ \
+
+DEFINES += HAVE_TESSERACT

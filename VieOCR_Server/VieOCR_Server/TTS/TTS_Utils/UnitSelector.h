@@ -18,7 +18,6 @@
 #include <vector>
 #include <stdint.h>
 #include "config.h"
-#include "debug.h"
 
 #define MAX_ALLOC_SIZE			500000
 #define MAX_WORD_IN_PHRASE		13

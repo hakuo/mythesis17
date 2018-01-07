@@ -27,21 +27,21 @@ UnitSelector::~UnitSelector(){
 }
 
 int UnitSelector::initMaps(){
-    DEBUG_INFO("Initializing hash maps...");
+    //DEBUG_INFO("Initializing hash maps...");
     std::string TTS_SYS_ROOT(getenv("TOOL_SYS_ROOT"));
     if(TTS_SYS_ROOT.empty()){
-        DEBUG_FATAL("TOOL_SYS_ROOT is not set");
+        //DEBUG_FATAL("TOOL_SYS_ROOT is not set");
         return 1;
     }
     std::ifstream ifsUnitId(TTS_SYS_ROOT + TTS_UNIT_ID_PATH);
     std::ifstream ifsUnitSel(TTS_SYS_ROOT + TTS_UNIT_SELECTOR_PATH);
     std::ifstream ifsSpecial(TTS_SYS_ROOT + TTS_SPEC_PATH);
     if(!(ifsUnitId.is_open()&&ifsUnitSel.is_open()&&ifsSpecial.is_open())){
-        DEBUG_ERROR("Cannot open TTS dictionary, return now");
+        //DEBUG_ERROR("Cannot open TTS dictionary, return now");
         this->_good = false;
         return 1;
     }
-    DEBUG_INFO("Initializing unit ID map...");
+    //DEBUG_INFO("Initializing unit ID map...");
     std::string strline;
     vector<string> tokens;
     unitIdMap.set_empty_key(std::string());
@@ -51,7 +51,7 @@ int UnitSelector::initMaps(){
         if(tokens.size() < 2) break;
         this->unitIdMap[tokens[0]] = atoi(tokens[1].c_str());;
     }while(!ifsUnitId.eof());
-    DEBUG_INFO("Initializing unit selector map...");
+    //DEBUG_INFO("Initializing unit selector map...");
     unit_key_t key;
     wav_segment_t segment;
     this->unitMap.set_empty_key(this->default_key);
@@ -67,7 +67,7 @@ int UnitSelector::initMaps(){
         segment.end = atoi(tokens[5].c_str());
         this->unitMap[key] = segment;
     }while(!ifsUnitSel.eof());
-    DEBUG_INFO("Initializing special map");
+    //DEBUG_INFO("Initializing special map");
     this->specMap.set_empty_key(string());
     do{
         getline(ifsSpecial, strline);
@@ -75,7 +75,7 @@ int UnitSelector::initMaps(){
         if(tokens.size() < 2) break;
         this->specMap[tokens[0]] = tokens[1];
     }while(!ifsSpecial.eof());
-    DEBUG_INFO("Finish initializing hash maps");
+    //DEBUG_INFO("Finish initializing hash maps");
     this->_good = true;
     return 0;
 }
@@ -85,7 +85,7 @@ void UnitSelector::storeMaps(void){
     FILE *fpUnitId = fopen((TTS_SYS_ROOT + TTS_UNIT_ID_DAT).c_str(),"w");
     // Serialize unit id map
     if(!fpUnitId){
-        DEBUG_ERROR("Cannot load unit ID map data");
+        //DEBUG_ERROR("Cannot load unit ID map data");
         this->_good = false;
         return;
     }
@@ -94,12 +94,12 @@ void UnitSelector::storeMaps(void){
     // Serialize Unit Selector map
     FILE *fpUnitSel = fopen((TTS_SYS_ROOT + TTS_UNIT_SELECTOR_DAT).c_str(),"w");
     if(!fpUnitSel){
-        DEBUG_ERROR("Cannot load unit map data");
+        //DEBUG_ERROR("Cannot load unit map data");
         this->_good = false;
         return;
     }
     if(this->unitMap.empty()){
-        DEBUG_ERROR("Unit map uninitialized, run initMaps first!");
+        //DEBUG_ERROR("Unit map uninitialized, run initMaps first!");
         this->_good = false;
         return;
     }
@@ -108,11 +108,11 @@ void UnitSelector::storeMaps(void){
     // Serialize specMap
     FILE *fpSpecDict  = fopen((TTS_SYS_ROOT + TTS_SPEC_DAT).c_str(), "w");
     if(!fpSpecDict){
-        DEBUG_ERROR("Cannot load specMap.dat");
+        //DEBUG_ERROR("Cannot load specMap.dat");
         return;
     }
     if(this->specMap.empty()){
-        DEBUG_ERROR("specMap uninitialized, run initMaps first!");
+        //DEBUG_ERROR("specMap uninitialized, run initMaps first!");
         this->_good = false;
         return;
     }
@@ -121,18 +121,18 @@ void UnitSelector::storeMaps(void){
 }
 
 int UnitSelector::restoreMaps(void){
-    DEBUG_INFO("Restoring hash maps");
+    //DEBUG_INFO("Restoring hash maps");
     char *root = getenv("TOOL_SYS_ROOT");
     if(root == NULL){
-        printf("%sUnitSelector::restoreMaps: TOOL_SYS_ROOT variable is not set\n"
-                "Abort operation...%s\n",KRED,KNRM);
+        //printf("%sUnitSelector::restoreMaps: TOOL_SYS_ROOT variable is not set\n"
+        //        "Abort operation...%s\n",KRED,KNRM);
         return 1;
     }
     std::string TTS_SYS_ROOT(root);
     FILE *fpUnitId = fopen((TTS_SYS_ROOT + TTS_UNIT_ID_DAT).c_str(),"r");
     // De-serialize unit id map
     if(!fpUnitId){
-        DEBUG_ERROR("Cannot load unit ID map data");
+        //DEBUG_ERROR("Cannot load unit ID map data");
         this->_good = false;
         return 1;
     }
@@ -143,7 +143,7 @@ int UnitSelector::restoreMaps(void){
     // De-serialize unit map
     FILE *fpUnitSel = fopen((TTS_SYS_ROOT + TTS_UNIT_SELECTOR_DAT).c_str(), "r");
     if(!fpUnitSel){
-        DEBUG_ERROR("Cannot load unit map data");
+        //DEBUG_ERROR("Cannot load unit map data");
         this->_good = false;
         return 1;
     }
@@ -154,14 +154,14 @@ int UnitSelector::restoreMaps(void){
     // De-serialize specMap
     FILE *fpSpecDict  = fopen((TTS_SYS_ROOT + TTS_SPEC_DAT).c_str(), "r");
     if(!fpSpecDict){
-        DEBUG_ERROR("Cannot load specMap.dat");
+        //DEBUG_ERROR("Cannot load specMap.dat");
         this->_good = false;
         return 1;
     }
     this->specMap.set_empty_key(std::string());
     this->specMap.unserialize(specMapSerializer(), fpSpecDict);
     fclose(fpSpecDict);
-    DEBUG_INFO("Finished restoring hash maps");
+    //DEBUG_INFO("Finished restoring hash maps");
     this->_good = true;
     return 0;
 }
@@ -171,7 +171,7 @@ int UnitSelector::restoreMaps(void){
 // sentence) and then then tokenized into words. The longest word combination
 // that exist in unitIdMap is selected.
 void UnitSelector::createIdList(std::string str){
-    DEBUG_INFO("Creating ID list");
+    //DEBUG_INFO("Creating ID list");
     vector<string>::iterator its;
     string phrase;
     unit_t unit;
@@ -180,7 +180,7 @@ void UnitSelector::createIdList(std::string str){
      * Split input string into sentences
      * TODO: Indicate end-of-sentence symbol for tokenizing, should be '\n' ??
      */
-    DEBUG_INFO("Slit input text into sentences");
+    //DEBUG_INFO("Slit input text into sentences");
     vector<string> sentence;
     vector<string> words;
     sentence.clear();
@@ -193,7 +193,7 @@ void UnitSelector::createIdList(std::string str){
         /*
          * Split phrase into words
          */
-        DEBUG_INFO("Split sentence into words");
+        //DEBUG_INFO("Split sentence into words");
         words.clear();
         this->splitString(&words, &(*its), ' ');
         /*
@@ -205,7 +205,7 @@ void UnitSelector::createIdList(std::string str){
             if((itw + MAX_WORD_IN_PHRASE) < words.end()){
                 i = MAX_WORD_IN_PHRASE;
             }else i = (words.end() - itw);
-            DEBUG_INFO("Searching phrase with maximum length = %d", i);
+            //DEBUG_INFO("Searching phrase with maximum length = %d", i);
             for( ;i > 0; i--){
                 phrase.clear();
                 for(int j = 0; j < i; j++){
@@ -214,7 +214,7 @@ void UnitSelector::createIdList(std::string str){
                 phrase.erase(phrase.length()-1,1);
                 id = 0;
                 if(!phrase.empty()){
-                    DEBUG_INFO("Search phrase %s in dictionary", phrase.c_str());
+                    //DEBUG_INFO("Search phrase %s in dictionary", phrase.c_str());
                     if((id = this->unitIdMap[phrase]) != 0){
                         itw += i;
                         break;
@@ -227,7 +227,7 @@ void UnitSelector::createIdList(std::string str){
                 this->resolveAbbreWord(phrase);
                 itw++;
             }else{
-                DEBUG_INFO("Longest phrase found, id = %d", id);
+                //DEBUG_INFO("Longest phrase found, id = %d", id);
                 unit.key.id = id;
                 this->idList.push_back(unit);
             }
@@ -237,16 +237,15 @@ void UnitSelector::createIdList(std::string str){
      * All phrase-id have been found, wave segment of each unit is select
      * from the unitMap base on left and right unit
      */
-    DEBUG_INFO("All phrase id have been found, start unit selector");
+    //DEBUG_INFO("All phrase id have been found, start unit selector");
     this->fillNeighborId();
     std::vector<unit_t>::iterator itu;
     wav_segment_t segment;
     unit_key_t key;
     for(itu = this->idList.begin();	itu != this->idList.end(); ++itu){
-        DEBUG_INFO("Search unitMap with key = {%d,%d,%d}",itu->key.id,
-                itu->key.id_left, itu->key.id_right);
+        //DEBUG_INFO("Search unitMap with key = {%d,%d,%d}",itu->key.id, itu->key.id_left, itu->key.id_right);
         if(itu->key.id == 0){
-            DEBUG_ERROR("key.id = 0, ignore this unit");
+            //DEBUG_ERROR("key.id = 0, ignore this unit");
             continue;
         }
         key = itu->key;
@@ -260,16 +259,16 @@ void UnitSelector::createIdList(std::string str){
          * {id, 0, 0}. This always match in unitMap
          */
         if(strlen(segment.filename) == 0){
-            DEBUG_INFO("Key not found, try {%d,%d,%d}", itu->key.id, 0, itu->key.id_right);
+            //DEBUG_INFO("Key not found, try {%d,%d,%d}", itu->key.id, 0, itu->key.id_right);
             key.id_left = 0;
             segment = this->unitMap[key];
             if(strlen(segment.filename) == 0){
-                DEBUG_INFO("Key not found, try {%d,%d,%d}", itu->key.id, itu->key.id_left, 0);
+                //DEBUG_INFO("Key not found, try {%d,%d,%d}", itu->key.id, itu->key.id_left, 0);
                 key.id_left = itu->key.id_left;
                 key.id_right = 0;
                 segment = this->unitMap[key];
                 if(strlen(segment.filename) == 0){
-                    DEBUG_INFO("Key not found, try {%d,%d,%d}", itu->key.id, 0, 0);
+                    //DEBUG_INFO("Key not found, try {%d,%d,%d}", itu->key.id, 0, 0);
                     key.id_left = 0;
                     segment = this->unitMap[key];
                 }
@@ -277,7 +276,7 @@ void UnitSelector::createIdList(std::string str){
         }
         itu->segment = segment;
     }
-    DEBUG_INFO("ID list created!");
+    //DEBUG_INFO("ID list created!");
 }
 
 void UnitSelector::outputIdListToFile(std::string path){
@@ -299,10 +298,10 @@ bool UnitSelector::good(void){
 }
 
 void UnitSelector::createWavFile(std::string path){
-    DEBUG_INFO("Creating wave file %s", path.c_str());
+    //DEBUG_INFO("Creating wave file %s", path.c_str());
     std::string TTS_SYS_ROOT(getenv("TOOL_SYS_ROOT"));
     if(TTS_SYS_ROOT.empty()){
-        DEBUG_FATAL("TOOL_SYS_ROOT is not set");
+        //DEBUG_FATAL("TOOL_SYS_ROOT is not set");
         return;
     }
     wav_header_t hwav;
@@ -313,14 +312,13 @@ void UnitSelector::createWavFile(std::string path){
     char *buffer;
     fwrite((const void *)&hwav, sizeof(wav_header_t), 1, outputWav);
     for(itu = this->idList.begin(); itu != this->idList.end(); ++itu){
-        DEBUG_INFO("Concatenating segment {%s,%d,%d}",
-                itu->segment.filename, itu->segment.begin, itu->segment.end);
+        //DEBUG_INFO("Concatenating segment {%s,%d,%d}", itu->segment.filename, itu->segment.begin, itu->segment.end);
         segment_size = (itu->segment.end - itu->segment.begin)*32;
         if(segment_size < MAX_ALLOC_SIZE){
             buffer = new char[segment_size];
             memset(buffer, 0, segment_size);
         }else{
-            DEBUG_INFO("Cannot allocate buffer size = %d", segment_size);
+            //DEBUG_INFO("Cannot allocate buffer size = %d", segment_size);
             continue;
         }
         std::ifstream inputWav((TTS_SYS_ROOT + TTS_DATABASE_PATH + std::string(itu->segment.filename) + ".wav").c_str(),
@@ -331,7 +329,7 @@ void UnitSelector::createWavFile(std::string path){
             fwrite(buffer, sizeof(char), segment_size, outputWav);
             data_size += segment_size;
         }else{
-            DEBUG_ERROR("Cannot open file %s", itu->segment.filename);
+            //DEBUG_ERROR("Cannot open file %s", itu->segment.filename);
             this->_good = false;
         }
         delete[] buffer;
@@ -343,7 +341,7 @@ void UnitSelector::createWavFile(std::string path){
     fseek(outputWav, 0, 0);
     fwrite((const void *)&hwav, sizeof(wav_header_t), 1, outputWav);
     fclose(outputWav);
-    DEBUG_INFO("Created wave file %s", path.c_str());
+    //DEBUG_INFO("Created wave file %s", path.c_str());
 }
 
 void UnitSelector::outputUnresolvedListToFile(std::string path){
@@ -351,7 +349,7 @@ void UnitSelector::outputUnresolvedListToFile(std::string path){
     if(this->enable_unresolved_words_output){
         FILE *pFile = fopen(path.c_str(), "w");
         if(pFile == NULL){
-            DEBUG_ERROR("Cannot open file: %s", path.c_str());
+            //DEBUG_ERROR("Cannot open file: %s", path.c_str());
             return;
         }
         fprintf(pFile, "Unresolved word list %s\n", __DATE__);
@@ -365,14 +363,14 @@ void UnitSelector::outputUnresolvedListToFile(std::string path){
 }
 
 void UnitSelector::resolveAbbreWord(string word){
-    DEBUG_INFO("Searching word in specMap: %s", word.c_str());
+    //DEBUG_INFO("Searching word in specMap: %s", word.c_str());
     if(word.empty()) return;
     // Unicode character mapping
     std::tr1::unordered_map<std::string, std::string>::iterator it;
     for(it = this->unicode_map.begin(); it != this->unicode_map.end(); ++it){
         std::size_t pos;
         if((pos = word.find(it->first)) != std::string::npos){
-            DEBUG_INFO("Replace unicode character %s with %s", it->first.c_str(), it->second.c_str());
+            //DEBUG_INFO("Replace unicode character %s with %s", it->first.c_str(), it->second.c_str());
             word.replace(pos, it->first.length(), it->second);
             // Re-search in unit map
             this->searchPhrase(word);
@@ -383,11 +381,11 @@ void UnitSelector::resolveAbbreWord(string word){
     if(phrase.empty()){
         // Spell every characters, send word to unresolved list for update
         // TODO: Implement a smarter approach to spell words that haven't been indexed
-        DEBUG_WARNING("No matched word is found!");
+        //DEBUG_WARNING("No matched word is found!");
         this->spellWord(word);
     }else{
         phrase.erase(phrase.find('\r'), 1);
-        DEBUG_INFO("Normalized phrase: %s", phrase.c_str());
+        //DEBUG_INFO("Normalized phrase: %s", phrase.c_str());
         this->searchPhrase(phrase);
     }
 }
@@ -420,7 +418,7 @@ void UnitSelector::searchPhrase(std::string phrase){
         if((it + MAX_WORD_IN_PHRASE) < tokens.end()){
             i = MAX_WORD_IN_PHRASE;
         }else i = tokens.end() - it;
-        DEBUG_INFO("Searching phrase with maximum length = %d", i);
+        //DEBUG_INFO("Searching phrase with maximum length = %d", i);
         for( ; i > 0; i--){
             phrase.clear();
             for(int j = 0; j < i; j++){
@@ -429,7 +427,7 @@ void UnitSelector::searchPhrase(std::string phrase){
             phrase.erase(phrase.length()-1,1);
             if(!phrase.empty()){
                 if((id = this->unitIdMap[phrase]) != 0){
-                    DEBUG_INFO("Longest phrase found, id = %d, length = %d", id, i);
+                    //DEBUG_INFO("Longest phrase found, id = %d, length = %d", id, i);
                     it += i;
                     unit.key.id = id;
                     this->idList.push_back(unit);
@@ -438,14 +436,14 @@ void UnitSelector::searchPhrase(std::string phrase){
             }
         }
         if(id == 0){
-            DEBUG_WARNING("Cannot find phrase %s in dictionary",phrase.c_str());
+            //DEBUG_WARNING("Cannot find phrase %s in dictionary",phrase.c_str());
             it++;
         }
     }
 }
 
 void UnitSelector::fillNeighborId(void){
-    DEBUG_INFO("Fill unit id left and right in struct key");
+    //DEBUG_INFO("Fill unit id left and right in struct key");
     std::vector<unit_t>::iterator it;
     it = this->idList.begin();
     it->key.id_left = 0;
