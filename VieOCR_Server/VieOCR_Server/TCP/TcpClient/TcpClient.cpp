@@ -101,7 +101,7 @@ bool TcpClient::sendFile(const std::string filepath)
     file_info.crc = TcpUtils::calcFileCRC(filepath);
     file_info.size = szLen;
     file_info.type = TcpUtils::getFileType(filepath);
-    file_info.from = TcpUtils::getIp(TCP_INTERFACE);
+    memset(file_info.from, 0, 64);
 
     TcpUtils::tcp_pkg_t *txBuffer = new TcpUtils::tcp_pkg_t;
     TcpUtils::tcp_pkg_t *rxBuffer = new TcpUtils::tcp_pkg_t;
@@ -121,12 +121,13 @@ bool TcpClient::sendFile(const std::string filepath)
     // Step 3: transfer file
     cmd = TcpUtils::TRANFER_FILE;
     std::ifstream inFile;
-    uint8_t data[DATA_SIZE];
+    uint8_t data[DATA_SIZE] = {0};
     inFile.open(filepath, std::ios::in | std::ios::binary);
     if(inFile.is_open())
     {
         while(!inFile.eof())
         {
+            memset(data, 0, DATA_SIZE);
             inFile.read((char *)data, DATA_SIZE);
             TcpUtils::makeTxPackage(txBuffer, cmd, cmd_type, data, DATA_SIZE);
             if (TcpUtils::sendPackage(mClientSock, txBuffer, rxBuffer, &szRecv) == false)

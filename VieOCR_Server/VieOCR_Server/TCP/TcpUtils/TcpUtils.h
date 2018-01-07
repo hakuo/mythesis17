@@ -55,8 +55,7 @@ typedef struct
     file_type_t type;
     uint32_t size;
     uint32_t crc;
-    std::string from;
-
+    uint8_t from[64];
 }file_info_t;
 
 typedef struct

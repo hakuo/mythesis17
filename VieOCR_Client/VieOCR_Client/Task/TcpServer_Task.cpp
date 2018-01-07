@@ -149,7 +149,7 @@ void TcpServerTask::startDownload(const uint8_t *data, TcpUtils::tcp_pkg_t *txPa
         std::cout << "file_type: " << (int)mFile.header.type << std::endl;
         std::cout << "file_size: " << (int)mFile.header.size << std::endl;
         std::cout << "file_crc: " << (int)mFile.header.crc << std::endl;
-        std::cout << "from: " << mFile.header.from << std::endl;
+        //std::cout << "from: " << mFile.header.from << std::endl;
         TcpUtils::genFilePath(mFile, tmp_dir.c_str());
         if(TcpUtils::checkAvailableToWrite(mFile))
         {
@@ -179,7 +179,7 @@ void TcpServerTask::transferFile(const uint8_t *data, TcpUtils::tcp_pkg_t *txPac
     std::cout << "tranfer file" << std::endl;
     TcpUtils::request_t cmd = TcpUtils::TRANFER_FILE;
     TcpUtils::response_t error_code;
-    uint32_t writelen = (remain_size > TCP_BUFFER_SIZE) ? TCP_BUFFER_SIZE : remain_size;
+    uint32_t writelen = (remain_size > DATA_SIZE) ? DATA_SIZE : remain_size;
     switch (mState) {
     case TcpUtils::TRANFER_FILE:
         if(TcpUtils::writeFileToMemory(mFile.filepath, data, writelen))
@@ -245,7 +245,7 @@ void TcpServerTask::notifyFileAvailable(const TcpUtils::file_t file)
     {
         message_t msg;
         memset(&msg, 0, sizeof(msg));
-        memcpy(msg.msg_id, file.header.from.c_str(), file.header.from.length());
+        //memcpy(msg.msg_id, file.header.from.c_str(), file.header.from.length());
         strncpy((char *)msg.data, file.filepath.c_str(), file.filepath.length());
         pushMessageQueue(mQueue.txQueue, (char *)&msg, sizeof(msg));
     }

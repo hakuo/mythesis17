@@ -51,7 +51,7 @@ void TTSTask::TaskHandler()
     szLen = popMessageQueue(mQueue.rxQueue, (char *)buffer);
     if(szLen <= 0)
     {
-        std::cout << "TTSTask: Queue empty" << std::endl;
+        //std::cout << "TTSTask: Queue empty" << std::endl;
         return;
     }
     memset(&rxMsg, 0, sizeof(message_t));

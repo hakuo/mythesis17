@@ -58,7 +58,7 @@ void OCRTask::TaskHandler()
     szLen = popMessageQueue(mQueue.rxQueue, (char *)buffer);
     if(szLen <= 0)
     {
-        std::cout << "OCRTask: Queue empty";
+        //std::cout << "OCRTask: Queue empty";
         return;
     }
     memset(&rxMsg, 0, sizeof(message_t));
@@ -70,6 +70,7 @@ void OCRTask::TaskHandler()
         memcpy(txMsg.msg_id, rxMsg.msg_id, MSG_ID_LENGTH);
         memcpy(txMsg.data, outTxt.c_str(), outTxt.length());
         pushMessageQueue(mQueue.txQueue, (char *)&txMsg, sizeof(message_t));
+        std::cout << "push a queue to TTS" << std::endl;
     }
 }
 
