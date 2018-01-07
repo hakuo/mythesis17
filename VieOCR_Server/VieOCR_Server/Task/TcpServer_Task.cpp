@@ -266,7 +266,7 @@ void TcpServerTask::TaskHandler()
     int client_sock = -1;
     // Initialize the timeout to 3 minutes. If no activity after 3 minutes,
     // the program will end. Timeout value is based on miliseconds.
-    uint32_t timeout = 5000; // poll 5s
+    uint32_t timeout = 10; // poll 10ms
 
     // Initialize the folling structure
     struct pollfd fds[100];
