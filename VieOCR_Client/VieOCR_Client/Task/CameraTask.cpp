@@ -48,6 +48,7 @@ void CameraTask::stop()
     pCam->stopCam();
     pthread_join(mThreadID, NULL);
     delete pCam;
+    pCam = NULL;
 }
 
 void CameraTask::TaskHandler()

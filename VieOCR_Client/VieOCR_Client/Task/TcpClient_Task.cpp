@@ -36,11 +36,21 @@ void TcpClientTask::TaskHandler()
     szLen = popMessageQueue(mQueue.rxQueue, (char *)buffer);
     if(szLen <= 0)
     {
+        /* Queue empty */
         return;
     }
+    std::cout << "receive a queue from Camera" << std::endl;
     memset(&rxMsg, 0, sizeof(message_t));
     memcpy(&rxMsg, buffer, sizeof(message_t));
-    pTcpClient->connectToServer((char *)rxMsg.msg_id, TCP_PORT);
+    pTcpClient->connectToServer(serv_addr.c_str(), TCP_PORT);
     pTcpClient->sendFile((char *)rxMsg.data);
     pTcpClient->closeSock();
+}
+
+void TcpClientTask::setServerAddress(const char *addr)
+{
+    if(addr != NULL)
+    {
+       serv_addr = addr;
+    }
 }

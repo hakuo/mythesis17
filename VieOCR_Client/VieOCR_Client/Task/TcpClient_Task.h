@@ -13,9 +13,11 @@ public:
 
     virtual bool readyToRun();
     virtual void TaskHandler();
+    void setServerAddress(const char* addr);
 
 private:
     TcpClient* pTcpClient;
+    std::string serv_addr;
 };
 
 #endif // TCPCLIENT_TASK_H

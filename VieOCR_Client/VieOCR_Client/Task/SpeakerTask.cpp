@@ -8,7 +8,6 @@ SpeakerTask::SpeakerTask()
 
 SpeakerTask::~SpeakerTask()
 {
-    closeMessageQueue(mQueue.rxQueue);
     mq_unlink(SPK_QUEUE);
 }
 
@@ -20,7 +19,7 @@ void SpeakerTask::TaskHandler()
     szLen = popMessageQueue(mQueue.rxQueue, (char *)buffer);
     if(szLen <= 0)
     {
-        std::cout << "SpeakerTask: Queue empty" << std::endl;
+        //std::cout << "SpeakerTask: Queue empty" << std::endl;
         return;
     }
 

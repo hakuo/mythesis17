@@ -14,7 +14,6 @@ SOURCES += \
     Task/TcpServer_Task.cpp \
     TCP/TcpClient/TcpClient.cpp \
     TCP/TcpUtils/TcpUtils.cpp \
-    ConsoleMenu.cpp \
     main.cpp
 
 HEADERS += \
@@ -28,8 +27,7 @@ HEADERS += \
     Task/TcpServer_Task.h \
     TCP/TcpClient/TcpClient.h \
     TCP/TcpUtils/TcpUtils.h \
-    common.h \
-    ConsoleMenu.h
+    common.h
 
 
 LIBS += `pkg-config opencv --cflags --libs`

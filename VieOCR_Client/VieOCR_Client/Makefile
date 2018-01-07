@@ -19,7 +19,6 @@ SRCS = CameraMgr/CameraMgr.cpp \
     Task/TcpServer_Task.cpp \
     TCP/TcpClient/TcpClient.cpp \
     TCP/TcpUtils/TcpUtils.cpp \
-    ConsoleMenu.cpp \
     main.cpp
 
 INCS = -I. \
@@ -30,7 +29,7 @@ OBJS = $(SRCS:.cpp=.o)
 	$(CC) -c -o $@ $< $(CFLAGS) $(INCS)
 
 $(APP): $(OBJS)
-	$(CC) -o $@ $^ $(CFLAGS) $(INCS) $(LIBS)
+	$(CC) -o $@ $^ $(LIBS)
 
 .PHONY: clean
 

@@ -6,7 +6,7 @@
 
 namespace TcpUtils {
 
-#define TCP_PORT 12345
+#define TCP_PORT 8080
 #define DATA_SIZE 1024
 //#define DOWNLOAD_FOLDER "./recv/"
 //#define UPLOAD_FOLDER "./send/"

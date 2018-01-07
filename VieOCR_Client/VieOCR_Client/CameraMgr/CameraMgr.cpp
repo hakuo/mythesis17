@@ -1,8 +1,11 @@
 #include "CameraMgr.h"
+#include "TCP/TcpUtils/TcpUtils.h"
 
 CameraMgr::CameraMgr()
 {
     stillCam = false;
+    isCapture = false;
+    TOOL_SYS_ROOT = std::string(getenv("TOOL_SYS_ROOT"));
 }
 
 CameraMgr::~CameraMgr()
@@ -17,6 +20,8 @@ CameraMgr::~CameraMgr()
 bool CameraMgr::openCam(int camno)
 {
     mCam.open(camno);
+    mCam.set(CV_CAP_PROP_FRAME_WIDTH, 1280);
+    mCam.set(CV_CAP_PROP_FRAME_HEIGHT, 720);
     return this->isCamOpen();
 }
 
@@ -34,6 +39,10 @@ void CameraMgr::startCam()
 {
     stillCam = true;
     cv::Mat frame;
+    cv::Mat rotFrame;
+    std::string tmp_dir = TOOL_SYS_ROOT + TMP_PATH;
+    TcpUtils::file_t file;
+    file.header.type = TcpUtils::PNG_FILE;
     while(stillCam)
     {
         mCam.read(frame);
@@ -44,8 +53,11 @@ void CameraMgr::startCam()
         }
         if(isCapture)
         {
-            // TODO: generate file name
-            cv::imwrite(mOutputPath, frame);
+            //generate outputpath
+            TcpUtils::genFilePath(file, tmp_dir.c_str());
+            mOutputPath = file.filepath;
+            cv::rotate(frame, rotFrame, cv::ROTATE_90_COUNTERCLOCKWISE);
+            cv::imwrite(mOutputPath, rotFrame);
             isCapture = false;
         }
     }
@@ -62,6 +74,6 @@ std::string CameraMgr::capture()
     if(this->stillCam == false) return NULL;
     this->isCapture = true;
     //wait for saving data
-    while(this->isCapture);
+    while(this->isCapture == true);
     return mOutputPath;
 }

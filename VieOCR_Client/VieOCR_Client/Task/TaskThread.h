@@ -17,7 +17,7 @@ public:
 
     typedef struct
     {
-        uint8_t msg_id[MSG_ID_LENGTH];
+        uint8_t msg_id[MSG_ID_LENGTH];      // Server address
         uint8_t data[MSG_DATA_LENGTH];
     } message_t;
 
@@ -29,7 +29,7 @@ public:
 
     void run();
     virtual void stop();
-    bool mThreadTerminate;
+    volatile bool mThreadTerminate;
     static mqd_t openTxQueue(const char* pName);
     static mqd_t openRxQueue(const char* pName);
     static mqd_t openMessageQueue(const char* pName, int32_t flag);
