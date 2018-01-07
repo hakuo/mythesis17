@@ -464,11 +464,11 @@ std::string getIp(const char *interface)
         {
             if (s != 0)
             {
-                printf("getnameinfo() failed: %s\n", gai_strerror(s));
+                //printf("getnameinfo() failed: %s\n", gai_strerror(s));
                 return "";
             }
-            printf("\tInterface : <%s>\n",ifa->ifa_name );
-            printf("\t  Address : <%s>\n", host);
+            //printf("\tInterface : <%s>\n",ifa->ifa_name );
+            //printf("\t  Address : <%s>\n", host);
             break;
         }
         memset(host, 0, NI_MAXHOST);

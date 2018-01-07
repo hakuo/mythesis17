@@ -63,12 +63,12 @@ void TaskThread::ThreadLoop()
 
 mqd_t TaskThread::openRxQueue(const char *pName)
 {
-    return openMessageQueue(pName, (O_CREAT | O_RDONLY));
+    return openMessageQueue(pName, (O_CREAT | O_RDONLY | O_NONBLOCK));
 }
 
 mqd_t TaskThread::openTxQueue(const char *pName)
 {
-    return openMessageQueue(pName, (O_CREAT | O_WRONLY));
+    return openMessageQueue(pName, (O_CREAT | O_WRONLY | O_NONBLOCK));
 }
 
 mqd_t TaskThread::openMessageQueue(const char *pName, int32_t flag)
@@ -109,7 +109,7 @@ void TaskThread::pushMessageQueue(mqd_t mqQidDes, const char *pOutBuf, size_t sz
     if ((-1 != mqQidDes) && (pOutBuf != NULL) && (szLen > 0))
     {
         mq_send(mqQidDes, pOutBuf, szLen, 0);
-        std::cout << "push 1 message to queue" << std::endl;
+        std::cout << "push a queue to target" << std::endl;
     }
     else
     {
@@ -128,53 +128,12 @@ ssize_t TaskThread::popMessageQueue(mqd_t mqQidFrom, char *pMsgBuf)
 
     if (-1 != mqQidFrom) {
         nRecvBytes = mq_receive(mqQidFrom, pMsgBuf, MAX_MQUEUE_SIZE, 0);
-        std::cout << "receive 1 msg" << (int)nRecvBytes << std::endl;
+        //std::cout << "receive 1 msg " << (int)nRecvBytes << std::endl;
     }
 
     if (-1 == nRecvBytes) {
-        perror("popMq failed");
+        //perror("popMq failed");
+        //std::cout << "Receive message from message queue has been failed" << std::endl;
     }
     return nRecvBytes;
 }
-//bool TaskThread::popTxQueue(message_t &msg)
-//{
-//    bool ret;
-//    if(txQueue.empty())
-//    {
-//        ret = false;
-//    }
-//    else
-//    {
-//        msg=txQueue.front();
-//        txQueue.pop();
-//        ret = true;
-//    }
-//    return ret;
-//}
-
-//void TaskThread::pushTxQueue(message_t msg)
-//{
-//    txQueue.push(msg);
-//}
-
-//bool TaskThread::popRxQueue(message_t &msg)
-//{
-//    bool ret;
-//    if(rxQueue.empty())
-//    {
-//        ret = false;
-//    }
-//    else
-//    {
-//        msg=rxQueue.front();
-//        rxQueue.pop();
-//        ret = true;
-//    }
-//    return ret;
-//}
-
-//void TaskThread::pushRxQueue(message_t msg)
-//{
-//    rxQueue.push(msg);
-//}
-

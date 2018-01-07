@@ -5,7 +5,8 @@ using namespace std;
 
 int main()
 {
-    setenv("TOOL_SYS_ROOT", "/home/cuongdh8/workspace/qt/cpp/mythesis17/VieOCR_Client", 1);
+    //setenv("TOOL_SYS_ROOT", "/home/cuongdh8/workspace/qt/cpp/mythesis17/VieOCR_Client", 1);
+    setenv("TOOL_SYS_ROOT", "/home/pi/workspace/mythesis17/VieOCR_Client", 1);
     Task *pTask = new Task();
     pTask->initParameter(TCP_PORT, 1, 1, "192.168.1.38");
     pTask->runAllTask();

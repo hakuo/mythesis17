@@ -30,7 +30,6 @@ TcpServerTask::~TcpServerTask()
 
 bool TcpServerTask::readyToRun()
 {
-    //sock_map.clear();
     mQueue.txQueue = openTxQueue(SPK_QUEUE);
     mState = TcpUtils::START_DOWNLOAD;
     return (mListenNum != -1) && (mListenPort != -1)

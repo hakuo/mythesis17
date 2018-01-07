@@ -14,6 +14,7 @@ public:
     void initParameter(int tcpPort, int tcpListenNum);
     bool isTaskRun(TaskThread* task);
     void runAllTask();
+    void stopAllTask();
 private:
     OCRTask *pOCR;
     TTSTask *pTTS;

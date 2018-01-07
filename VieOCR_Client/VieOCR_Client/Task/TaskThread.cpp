@@ -85,14 +85,13 @@ mqd_t TaskThread::openMessageQueue(const char *pName, int32_t flag)
 
         if ((retQid = mq_open(pName, flag, MQUEUE_PERMISSIONS, &attr)) == -1)
         {
-            std::cout << "Queue open error " << pName << std::endl;
+            std::cout << "openMessageQueue(): Queue open error " << pName << std::endl;
         }
         else
         {
             std::cout << "opened mq " << pName << std::endl;
         }
     }
-
     return retQid;
 }
 
@@ -110,7 +109,7 @@ void TaskThread::pushMessageQueue(mqd_t mqQidDes, const char *pOutBuf, size_t sz
     if ((-1 != mqQidDes) && (pOutBuf != NULL) && (szLen > 0))
     {
         mq_send(mqQidDes, pOutBuf, szLen, 0);
-        std::cout << "push a queue to TcpClient" << std::endl;
+        std::cout << "push a queue to target" << std::endl;
     }
     else
     {
@@ -138,4 +137,3 @@ ssize_t TaskThread::popMessageQueue(mqd_t mqQidFrom, char *pMsgBuf)
     }
     return nRecvBytes;
 }
-

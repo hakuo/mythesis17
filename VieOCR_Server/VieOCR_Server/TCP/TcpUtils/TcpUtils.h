@@ -6,7 +6,7 @@
 
 namespace TcpUtils {
 
-#define TCP_PORT 12345
+#define TCP_PORT 8080
 #define DATA_SIZE 1024
 //#define DOWNLOAD_FOLDER "./recv/"
 //#define UPLOAD_FOLDER "./send/"
@@ -66,7 +66,6 @@ typedef struct
 }file_t;
 
 void makeTxPackage(tcp_pkg_t *pkg, request_t cmd, response_t error_code, uint8_t* data = NULL, uint16_t len = 0);
-//uint8_t* allocResponse(request_t cmd, response_t error_code, uint8_t* data = NULL, uint16_t len = 0);
 bool checkAvailableToWrite(file_t file);
 bool writeFileToMemory(const std::string filepath, const uint8_t *data, uint16_t datalen);
 bool checkFileAvailable(const std::string filepath, size_t *szLen = NULL);
@@ -76,7 +75,6 @@ bool genFilePath(file_t &file, const char *dir);
 std::string ZeroPadNumber(uint32_t num);
 bool checkDirExist(const char* dir);
 bool createDirectory(const char* dir);
-//bool initEnv();
 std::string getFileExt(const std::string filepath);
 file_type_t getFileType(const std::string filepath);
 std::string genFileExt(file_type_t file_type);

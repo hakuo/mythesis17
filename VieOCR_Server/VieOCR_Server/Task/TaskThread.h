@@ -29,8 +29,8 @@ public:
     }queue_info_t;
 
     void run();
-    void stop();
-    bool mThreadTerminate;
+    virtual void stop();
+    volatile bool mThreadTerminate;
     static mqd_t openTxQueue(const char* pName);
     static mqd_t openRxQueue(const char* pName);
     static mqd_t openMessageQueue(const char* pName, int32_t flag);
@@ -44,16 +44,11 @@ protected:
     queue_info_t mQueue;
     virtual void ThreadLoop();
     bool isTaskRun;
-
-    //bool popRxQueue(message_t& msg);
-    //void pushTxQueue(message_t msg);
+    pthread_t mThreadID;
 
 private:
-    pthread_t mThreadID;
     static TaskThread* m_me;
     static void* _thread_(void *arg);
-    //std::queue<message_t> txQueue;
-    //std::queue<message_t> rxQueue;
 };
 
 #endif // TASKTHREAD_H

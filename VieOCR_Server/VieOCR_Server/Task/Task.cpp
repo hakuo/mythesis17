@@ -28,7 +28,30 @@ void Task::runAllTask()
     pTcpServer->run();
     pOCR->run();
     pTTS->run();
-//    pTcpClient->run();
+    pTcpClient->run();
+}
+
+void Task::stopAllTask()
+{
+    if(isTaskRun(pTcpClient))
+    {
+        pTcpClient->stop();
+    }
+
+    if(isTaskRun(pOCR))
+    {
+        pOCR->stop();
+    }
+
+    if(isTaskRun(pTTS))
+    {
+        pTTS->stop();
+    }
+
+    if(isTaskRun(pTcpServer))
+    {
+        pTcpServer->stop();
+    }
 }
 
 bool Task::isTaskRun(TaskThread *task)

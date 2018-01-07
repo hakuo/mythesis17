@@ -2,6 +2,8 @@
 
 TcpClientTask::TcpClientTask()
 {
+    mQueue.rxQueue = -1;
+    pTcpClient = NULL;
     mQueue.rxQueue = openRxQueue(TCP_QUEUE);
     pTcpClient = new TcpClient;
 }
@@ -13,7 +15,6 @@ TcpClientTask::~TcpClientTask()
         delete pTcpClient;
         pTcpClient = NULL;
     }
-    closeMessageQueue(mQueue.rxQueue);
     mq_unlink(TCP_QUEUE);
 }
 
@@ -32,9 +33,10 @@ void TcpClientTask::TaskHandler()
     szLen = popMessageQueue(mQueue.rxQueue, (char *)buffer);
     if(szLen <= 0)
     {
-        std::cout << "TcpClientTask: Queue empty" << std::endl;
+        /* Queue empty */
         return;
     }
+    std::cout << "receive a queue from TTS" << std::endl;
     memset(&rxMsg, 0, sizeof(message_t));
     memcpy(&rxMsg, buffer, sizeof(message_t));
     pTcpClient->connectToServer((char *)rxMsg.msg_id, TCP_PORT);
