@@ -176,7 +176,7 @@ void TcpServerTask::startDownload(const uint8_t *data, TcpUtils::tcp_pkg_t *txPa
 
 void TcpServerTask::transferFile(const uint8_t *data, TcpUtils::tcp_pkg_t *txPackage)
 {
-    std::cout << "tranfer file" << std::endl;
+    //std::cout << "tranfer file" << std::endl;
     TcpUtils::request_t cmd = TcpUtils::TRANFER_FILE;
     TcpUtils::response_t error_code;
     uint32_t writelen = (remain_size > DATA_SIZE) ? DATA_SIZE : remain_size;
@@ -384,7 +384,7 @@ void TcpServerTask::TaskHandler()
                     }
 
                     // Data arrived
-                    std::cout << (int)rc << " bytes received" << std::endl;
+                    //std::cout << (int)rc << " bytes received" << std::endl;
 
 
                     if(txBuffer == NULL)

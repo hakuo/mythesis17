@@ -20,8 +20,8 @@ CameraMgr::~CameraMgr()
 bool CameraMgr::openCam(int camno)
 {
     mCam.open(camno);
-    mCam.set(CV_CAP_PROP_FRAME_WIDTH, 1280);
-    mCam.set(CV_CAP_PROP_FRAME_HEIGHT, 720);
+    mCam.set(CV_CAP_PROP_FRAME_WIDTH, 1600);
+    mCam.set(CV_CAP_PROP_FRAME_HEIGHT, 1200);
     return this->isCamOpen();
 }
 
@@ -42,7 +42,7 @@ void CameraMgr::startCam()
     cv::Mat rotFrame;
     std::string tmp_dir = TOOL_SYS_ROOT + TMP_PATH;
     TcpUtils::file_t file;
-    file.header.type = TcpUtils::PNG_FILE;
+    file.header.type = TcpUtils::JPG_FILE;
     while(stillCam)
     {
         mCam.read(frame);
