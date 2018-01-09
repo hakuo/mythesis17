@@ -3,7 +3,7 @@
 #include "errno.h"
 
 #define MQUEUE_PERMISSIONS 0644
-#define MAX_MQUEUE_NO 10
+#define MAX_MQUEUE_NO 50
 
 
 
