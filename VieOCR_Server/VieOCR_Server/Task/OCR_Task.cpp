@@ -63,15 +63,31 @@ void OCRTask::TaskHandler()
     }
     memset(&rxMsg, 0, sizeof(message_t));
     memcpy(&rxMsg, buffer, sizeof(message_t));
-    std::string outTxt = pOCRinstance->createTxt((char *)rxMsg.data);
-    if(outTxt.length() > 0)
+
+    // Step 2: Pre-processing: deSkew and lines segmentation
+    cv::Mat img_tmp;
+    std::string outTxt;
+    std::vector<cv::Mat> lines;
+    pOCRinstance->loadImage(img_tmp, (char *)rxMsg.data);
+    pOCRinstance->deSkew(img_tmp, img_tmp);
+    pOCRinstance->lineSegment(lines, img_tmp);
+    for(size_t i=0; i<lines.size(); ++i)
     {
-        memset(&txMsg, 0, sizeof(message_t));
-        memcpy(txMsg.msg_id, rxMsg.msg_id, MSG_ID_LENGTH);
-        memcpy(txMsg.data, outTxt.c_str(), outTxt.length());
-        pushMessageQueue(mQueue.txQueue, (char *)&txMsg, sizeof(message_t));
-        std::cout << "push a queue to TTS" << std::endl;
+//        cv::imshow("line", lines[i]);
+//        cv::waitKey();
+        // Step 3: doOCR in each segmented lines and push to TTS
+        outTxt = pOCRinstance->createTxt(lines[i]);
+        if(outTxt.length() > 0)
+        {
+            memset(&txMsg, 0, sizeof(message_t));
+            memcpy(txMsg.msg_id, rxMsg.msg_id, MSG_ID_LENGTH);
+            memcpy(txMsg.data, outTxt.c_str(), outTxt.length());
+            pushMessageQueue(mQueue.txQueue, (char *)&txMsg, sizeof(message_t));
+            std::cout << "push a queue to TTS" << std::endl;
+        }
     }
+    //std::string outTxt = pOCRinstance->createTxt((char *)rxMsg.data);
+
 }
 
 

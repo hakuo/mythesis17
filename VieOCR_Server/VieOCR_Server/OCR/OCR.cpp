@@ -21,6 +21,24 @@ OCR::~OCR()
 
 }
 
+std::string OCR::createTxt(cv::Mat image)
+{
+    std::string ret = "";
+    std::string outDir = OCR_SYS_ROOT + TMP_PATH;
+    TcpUtils::file_t file;
+    file.header.type = TcpUtils::TXT_FILE;
+    if(image.data != NULL)
+    {
+        this->setImgInput(image);
+        TcpUtils::genFilePath(file, outDir.c_str());
+        mTxtOutput = file.filepath;
+        this->run();
+        while(isRun);
+        ret = getOutput();
+        resetPath();
+    }
+    return ret;
+}
 std::string OCR::createTxt(std::string inputPath)
 {
     std::string ret = "";
@@ -85,7 +103,7 @@ void OCR::deSkew(cv::Mat &cropped, cv::Mat image)
     //    cv::imshow("Original", bin);
     //    cv::imshow("Rotated", rotated);
     //    cv::imshow("Cropped", cropped);
-    cv::waitKey();
+    //    cv::waitKey();
 }
 
 void OCR::lineSegment(std::vector<cv::Mat> &lineArray, cv::Mat image)

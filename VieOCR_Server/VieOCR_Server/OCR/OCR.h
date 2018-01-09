@@ -18,6 +18,9 @@ public:
     static bool loadImage(cv::Mat &image, const std::string imagePath);
     void setInputPath(std::string str);
     std::string createTxt(std::string inputPath);
+    std::string createTxt(cv::Mat image);
+    void deSkew(cv::Mat &cropped, cv::Mat image);
+    void lineSegment(std::vector<cv::Mat>& lineArray, cv::Mat image);
 protected:
     bool isRun;
     std::string OCR_SYS_ROOT;
@@ -26,9 +29,6 @@ protected:
     std::string mTxtOutput;
     void setImgInput(cv::Mat img);
     void cvtGray2Bin(cv::Mat& outImage, cv::Mat inImage);
-    void deSkew(cv::Mat &cropped, cv::Mat image);
-    void lineSegment(std::vector<cv::Mat>& lineArray, cv::Mat image);
-    double computeAngle(cv::Mat image);
     bool writeStrToTxt(const std::string filepath, std::string src);
     bool readTxtToStr(const std::string filepath, std::string &des);
     void genTxtPath(std::string &txtOutStr, std::string filepath);
