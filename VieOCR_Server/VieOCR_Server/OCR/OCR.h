@@ -25,11 +25,10 @@ protected:
     std::string mInputPath;
     std::string mTxtOutput;
     void setImgInput(cv::Mat img);
-    //void setInputPath(std::string str);
     void cvtGray2Bin(cv::Mat& outImage, cv::Mat inImage);
-    void skewCorrector(cv::Mat& outImage, cv::Mat inImage);
-    void extWords(std::vector<cv::Mat>& wordArray, cv::Mat image);
-    void extChars(std::vector<cv::Mat>& charArray, cv::Mat word);
+    void deSkew(cv::Mat &cropped, cv::Mat image);
+    void lineSegment(std::vector<cv::Mat>& lineArray, cv::Mat image);
+    double computeAngle(cv::Mat image);
     bool writeStrToTxt(const std::string filepath, std::string src);
     bool readTxtToStr(const std::string filepath, std::string &des);
     void genTxtPath(std::string &txtOutStr, std::string filepath);
